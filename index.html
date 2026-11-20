@@ -11,15 +11,12 @@
 
 <style>
 :root {
-  --bg: #080a0e;
-  --surface: rgba(24, 28, 37, 0.84);
-  --card: rgba(255, 255, 255, 0.065);
-  --card-solid: #1a1f29;
-  --border: rgba(255, 255, 255, 0.13);
-  --border-hi: rgba(255, 255, 255, 0.22);
+  --bg: #07090d;
+  --border: rgba(255, 255, 255, 0.11);
   --accent: #b7f36b;
   --text: #f5f7fa;
-  --muted: #9aa5b5;
+  --muted: rgba(226, 232, 240, 0.56);
+  --spring: cubic-bezier(0.32, 0.72, 0, 1);
   --wallpaper:
     radial-gradient(circle at 18% 18%, rgba(88, 138, 194, 0.42), transparent 52%),
     radial-gradient(circle at 86% 74%, rgba(56, 189, 248, 0.2), transparent 50%),
@@ -36,8 +33,7 @@
 
 body {
   margin: 0;
-  background:
-    radial-gradient(circle at 50% 0%, #1d2432 0%, #090b10 62%);
+  background: radial-gradient(circle at 50% 0%, #1a212e 0%, #07090d 65%);
   font-family: var(--font-ui);
   color: var(--text);
   display: grid;
@@ -48,33 +44,31 @@ body {
 }
 
 /* Hardware Frame */
-.phone-wrap {
-  position: relative;
-}
+.phone-wrap { position: relative; }
 
 .vol-btn {
   position: absolute;
   left: -5px;
   width: 4px;
-  height: 44px;
-  background: linear-gradient(180deg, #545d6d, #323843);
+  height: 42px;
+  background: linear-gradient(180deg, #525b6b, #2f3540);
   border-radius: 4px 0 0 4px;
   pointer-events: none;
 }
-.vol-up { top: 148px; }
-.vol-down { top: 204px; }
+.vol-up { top: 146px; }
+.vol-down { top: 200px; }
 
 .power-btn {
   position: absolute;
   right: -6px;
   top: 174px;
   width: 5px;
-  height: 68px;
-  background: linear-gradient(180deg, #5b6475, #343a46);
+  height: 66px;
+  background: linear-gradient(180deg, #596273, #313742);
   border-radius: 0 4px 4px 0;
   border: 0;
   cursor: pointer;
-  transition: transform 0.1s ease;
+  transition: transform 0.12s var(--spring);
 }
 .power-btn:active { transform: translateX(-1.5px); }
 
@@ -82,27 +76,27 @@ body {
   width: min(392px, 95vw);
   height: min(826px, 93vh);
   min-height: 620px;
-  background: #06070a;
-  border: 7px solid #2b313c;
+  background: #050609;
+  border: 7px solid #292f3a;
   border-radius: 48px;
   padding: 9px;
   box-shadow:
-    0 34px 80px rgba(0, 0, 0, 0.72),
+    0 36px 90px rgba(0, 0, 0, 0.76),
     0 0 0 1px rgba(255, 255, 255, 0.08),
-    inset 0 0 0 1.5px rgba(255, 255, 255, 0.06);
+    inset 0 0 0 1.5px rgba(255, 255, 255, 0.05);
   overflow: hidden;
 }
 
 .screen {
   height: 100%;
-  border-radius: 34px;
+  border-radius: 35px;
   background: var(--wallpaper);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   position: relative;
   filter: brightness(var(--brightness));
-  transition: background 0.45s ease;
+  transition: background 0.55s ease;
   user-select: none;
 }
 
@@ -125,7 +119,7 @@ body {
   top: 11px;
   left: 50%;
   transform: translateX(-50%);
-  width: 102px;
+  width: 98px;
   height: 25px;
   background: #040507;
   border-radius: 20px;
@@ -134,31 +128,52 @@ body {
   justify-content: space-between;
   padding: 0 9px;
   box-shadow:
-    0 2px 10px rgba(0, 0, 0, 0.5),
+    0 2px 12px rgba(0, 0, 0, 0.55),
     inset 0 0 0 0.5px rgba(255, 255, 255, 0.08);
   z-index: 31;
-  pointer-events: none;
-  transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  cursor: pointer;
+  transition: width 0.35s var(--spring);
 }
 
-.island.calling { width: 132px; }
+.island.expanded { width: 136px; }
+
+.island-wave {
+  display: none;
+  align-items: center;
+  gap: 2px;
+  height: 12px;
+}
+.island.playing .island-wave { display: flex; }
+.island-wave span {
+  width: 2.2px;
+  height: 4px;
+  background: var(--accent);
+  border-radius: 2px;
+  animation: eq 0.9s ease-in-out infinite alternate;
+}
+.island-wave span:nth-child(2) { animation-delay: 0.2s; }
+.island-wave span:nth-child(3) { animation-delay: 0.45s; }
+@keyframes eq {
+  from { height: 3px; opacity: 0.6; }
+  to   { height: 11px; opacity: 1; }
+}
 
 .island-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: transparent;
-  transition: background 0.25s;
-}
-.island.calling .island-dot {
+  display: none;
   background: #34d399;
   box-shadow: 0 0 8px #34d399;
 }
+.island.calling .island-dot { display: block; }
+.island.calling .island-wave { display: none; }
 
 .island-lens {
   width: 9px;
   height: 9px;
   border-radius: 50%;
+  margin-left: auto;
   background: radial-gradient(circle at 35% 35%, #3b6ea5 0%, #101b2a 55%, #06090f 100%);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
 }
@@ -169,102 +184,93 @@ body {
   gap: 7px;
 }
 
-.batt-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  font-weight: 600;
+/* Home Layer (zooms smoothly when app opens) */
+.home-layer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  will-change: transform, opacity;
+  transition: transform 0.36s var(--spring), opacity 0.28s ease;
+}
+.screen.app-open .home-layer {
+  transform: scale(0.93);
+  opacity: 0.35;
 }
 
-/* Home Screen */
 .content {
   flex: 1;
-  padding: 18px 20px 8px;
+  padding: 12px 20px 6px;
   overflow-y: auto;
   scrollbar-width: none;
 }
 .content::-webkit-scrollbar { display: none; }
 
 .date {
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 500;
-  color: rgba(235, 241, 248, 0.78);
-  margin-top: 6px;
+  color: rgba(235, 241, 248, 0.72);
+  margin-top: 4px;
 }
 
 .clock {
   font-family: var(--font-display);
-  font-size: 58px;
-  font-weight: 300;
+  font-size: 54px;
+  font-weight: 280;
   letter-spacing: -2px;
-  line-height: 1.05;
-  margin: 4px 0 20px;
+  line-height: 1.04;
+  margin: 2px 0 16px;
   font-variant-numeric: tabular-nums;
 }
 
 .widget {
-  background: rgba(255, 255, 255, 0.085);
-  backdrop-filter: blur(20px) saturate(150%);
-  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  background: rgba(255, 255, 255, 0.075);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
   border: 1px solid var(--border);
   box-shadow:
-    0 12px 28px rgba(0, 0, 0, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.16);
-  border-radius: 24px;
-  padding: 15px 17px;
-  margin-bottom: 24px;
+    0 10px 26px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  border-radius: 22px;
+  padding: 13px 16px;
+  margin-bottom: 18px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
   cursor: pointer;
-  transition: transform 0.16s ease, background 0.2s;
+  transition: transform 0.2s var(--spring), background 0.2s;
 }
-.widget:active { transform: scale(0.98); }
+.widget:active { transform: scale(0.97); }
 
 .widget strong {
-  display: block;
   font-size: 15px;
   font-weight: 600;
   letter-spacing: -0.01em;
-  margin-bottom: 3px;
 }
 
-.widget p {
-  margin: 0;
+.widget-meta {
   font-size: 12px;
-  color: rgba(226, 232, 240, 0.72);
+  color: var(--muted);
+  margin-top: 2px;
 }
 
 .widget-pill {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 16px;
-  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 7px 12px;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 3px;
-  font-size: 12px;
+  gap: 7px;
+  font-size: 13px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-}
-
-.section-label {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.9px;
-  color: rgba(226, 232, 240, 0.56);
-  font-weight: 600;
-  padding-left: 2px;
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 18px 10px;
-  margin-top: 14px;
+  gap: 15px 10px;
 }
 
 .app {
@@ -275,92 +281,98 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 7px;
-  font-size: 11.5px;
+  gap: 6px;
+  font-size: 11px;
   font-weight: 500;
+  letter-spacing: 0.01em;
   cursor: pointer;
   padding: 0;
-  transition: transform 0.16s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: transform 0.2s var(--spring);
 }
 .app:hover .icon { transform: translateY(-2px); }
-.app:active { transform: scale(0.88); }
+.app:active { transform: scale(0.86); }
 
 .icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 18px;
+  width: 53px;
+  height: 53px;
+  border-radius: 17px;
   display: grid;
   place-items: center;
   position: relative;
   overflow: hidden;
   box-shadow:
-    0 8px 18px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.28),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.12);
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+    0 8px 18px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.26),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.11);
+  transition: transform 0.22s var(--spring);
 }
 
 /* Custom App Icon Themes */
 .ico-notes     { background: linear-gradient(145deg, #fcd34d, #d97706); color: #1f1605; }
 .ico-calc      { background: linear-gradient(145deg, #334155, #0f172a); color: #f8fafc; }
-.ico-gallery   { background: linear-gradient(145deg, #38bdf8, #6366f1); color: #ffffff; }
-.ico-browser   { background: linear-gradient(145deg, #22d3ee, #2563eb); color: #ffffff; }
-.ico-weather   { background: linear-gradient(145deg, #60a5fa, #1d4ed8); color: #ffffff; }
-.ico-clock     { background: linear-gradient(145deg, #818cf8, #4338ca); color: #ffffff; }
-.ico-settings  { background: linear-gradient(145deg, #64748b, #1e293b); color: #f1f5f9; }
-.ico-about     { background: linear-gradient(145deg, #2dd4bf, #0284c7); color: #ffffff; }
-.ico-phone     { background: linear-gradient(145deg, #34d399, #059669); color: #ffffff; }
-.ico-messages  { background: linear-gradient(145deg, #38bdf8, #0284c7); color: #ffffff; }
+.ico-gallery   { background: linear-gradient(145deg, #38bdf8, #6366f1); }
+.ico-browser   { background: linear-gradient(145deg, #22d3ee, #2563eb); }
+.ico-weather   { background: linear-gradient(145deg, #60a5fa, #1d4ed8); }
+.ico-clock     { background: linear-gradient(145deg, #818cf8, #4338ca); }
+.ico-music     { background: linear-gradient(145deg, #fb7185, #be123c); }
+.ico-focus     { background: linear-gradient(145deg, #2dd4bf, #0f766e); }
+.ico-sketch    { background: linear-gradient(145deg, #c084fc, #7e22ce); }
+.ico-tasks     { background: linear-gradient(145deg, #4ade80, #15803d); }
+.ico-settings  { background: linear-gradient(145deg, #64748b, #1e293b); }
+.ico-about     { background: linear-gradient(145deg, #38bdf8, #0369a1); }
+.ico-phone     { background: linear-gradient(145deg, #34d399, #059669); }
+.ico-messages  { background: linear-gradient(145deg, #38bdf8, #0284c7); }
 
 .dock {
-  margin: 6px 14px 8px;
-  padding: 11px 14px;
-  background: rgba(255, 255, 255, 0.1);
+  margin: 4px 14px 6px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.095);
   backdrop-filter: blur(22px) saturate(160%);
   -webkit-backdrop-filter: blur(22px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
-  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  border-radius: 26px;
   display: flex;
   justify-content: space-around;
 }
 .dock .icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 16px;
+  width: 48px;
+  height: 48px;
+  border-radius: 15px;
 }
 
 .nav {
-  height: 22px;
+  height: 20px;
   display: grid;
   place-items: center;
   cursor: pointer;
   z-index: 25;
 }
 .nav span {
-  width: 114px;
+  width: 112px;
   height: 4px;
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.8);
   border-radius: 8px;
-  transition: width 0.15s ease, opacity 0.15s ease;
+  transition: width 0.2s var(--spring), opacity 0.2s;
 }
-.nav:active span { width: 92px; opacity: 0.65; }
+.nav:active span { width: 88px; opacity: 0.6; }
 
 /* App Panel */
 .panel {
   position: absolute;
-  inset: 42px 0 22px;
-  background: rgba(13, 17, 23, 0.94);
-  backdrop-filter: blur(26px) saturate(150%);
-  -webkit-backdrop-filter: blur(26px) saturate(150%);
+  inset: 42px 0 20px;
+  background: rgba(12, 16, 22, 0.92);
+  backdrop-filter: blur(28px) saturate(155%);
+  -webkit-backdrop-filter: blur(28px) saturate(155%);
   z-index: 15;
-  padding: 12px 18px 14px;
+  padding: 10px 18px 12px;
   display: flex;
   flex-direction: column;
   opacity: 0;
   pointer-events: none;
-  transform: translateY(24px) scale(0.95);
-  transition: opacity 0.22s ease, transform 0.26s cubic-bezier(0.2, 0.85, 0.25, 1);
+  will-change: transform, opacity;
+  transform: translateY(28px) scale(0.94);
+  transition: opacity 0.22s ease, transform 0.34s var(--spring);
   user-select: text;
 }
 .panel.show {
@@ -373,40 +385,38 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   flex-shrink: 0;
 }
 .panel h2 {
   margin: 0;
-  font-size: 20px;
+  font-size: 19px;
   font-weight: 600;
   letter-spacing: -0.02em;
 }
 
 .icon-btn {
-  width: 34px;
-  height: 34px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.08);
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.07);
   color: var(--text);
-  border-radius: 11px;
+  border-radius: 10px;
   display: grid;
   place-items: center;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.15s, transform 0.15s var(--spring);
 }
-.icon-btn:hover { background: rgba(255, 255, 255, 0.15); }
+.icon-btn:hover { background: rgba(255, 255, 255, 0.14); }
+.icon-btn:active { transform: scale(0.9); }
 
 #appBody {
   flex: 1;
   overflow-y: auto;
   padding-right: 2px;
+  scrollbar-width: none;
 }
-#appBody::-webkit-scrollbar { width: 4px; }
-#appBody::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.18);
-  border-radius: 4px;
-}
+#appBody::-webkit-scrollbar { display: none; }
 
 /* Lock Screen */
 .lockscreen {
@@ -418,15 +428,16 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  padding: 76px 24px 34px;
-  transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+  padding: 78px 24px 30px;
+  will-change: transform, opacity;
+  transition: transform 0.44s var(--spring), opacity 0.3s ease;
   cursor: pointer;
 }
 .lockscreen::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.12) 0%, rgba(0, 0, 0, 0.36) 100%);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.34) 100%);
   pointer-events: none;
 }
 .lockscreen.unlocked {
@@ -440,60 +451,58 @@ body {
   z-index: 1;
 }
 .lock-badge {
-  width: 36px;
-  height: 36px;
-  margin: 0 auto 10px;
+  width: 34px;
+  height: 34px;
+  margin: 0 auto 12px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   backdrop-filter: blur(12px);
   display: grid;
   place-items: center;
 }
 .lock-clock {
   font-family: var(--font-display);
-  font-size: 74px;
-  font-weight: 250;
-  letter-spacing: -2.5px;
+  font-size: 76px;
+  font-weight: 230;
+  letter-spacing: -2.8px;
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 .lock-date {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
-  color: rgba(241, 245, 249, 0.85);
+  color: rgba(241, 245, 249, 0.8);
   margin-top: 8px;
 }
-.lock-hint {
+.lock-cue {
   position: relative;
   z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.88);
-  background: rgba(15, 20, 28, 0.45);
-  backdrop-filter: blur(14px);
-  padding: 9px 16px;
-  border-radius: 22px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  display: grid;
+  place-items: center;
+  opacity: 0.72;
+  animation: floatCue 2.4s ease-in-out infinite;
+}
+@keyframes floatCue {
+  0%, 100% { transform: translateY(0); opacity: 0.55; }
+  50% { transform: translateY(-5px); opacity: 0.9; }
 }
 
-/* Quick Settings / Control Center */
+/* Control Center */
 .control-center {
   position: absolute;
   inset: 0;
-  background: rgba(11, 14, 20, 0.86);
-  backdrop-filter: blur(28px) saturate(150%);
-  -webkit-backdrop-filter: blur(28px) saturate(150%);
+  background: rgba(10, 13, 19, 0.84);
+  backdrop-filter: blur(30px) saturate(160%);
+  -webkit-backdrop-filter: blur(30px) saturate(160%);
   z-index: 27;
   padding: 58px 20px 28px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
+  will-change: transform;
   transform: translateY(-100%);
-  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.36s var(--spring);
 }
 .control-center.open { transform: translateY(0); }
 
@@ -503,10 +512,10 @@ body {
   gap: 10px;
 }
 .cc-tile {
-  background: rgba(255, 255, 255, 0.075);
-  border: 1px solid rgba(255, 255, 255, 0.11);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 20px;
-  padding: 14px 15px;
+  padding: 15px;
   color: var(--text);
   font-family: inherit;
   display: flex;
@@ -515,10 +524,9 @@ body {
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
-  text-align: left;
-  transition: background 0.2s, color 0.2s, transform 0.12s;
+  transition: background 0.2s, color 0.2s, transform 0.16s var(--spring);
 }
-.cc-tile:active { transform: scale(0.96); }
+.cc-tile:active { transform: scale(0.95); }
 .cc-tile.active {
   background: var(--accent);
   color: #0b0e12;
@@ -526,10 +534,9 @@ body {
   font-weight: 600;
 }
 
-/* Custom Pill Brightness Slider */
 .bright-wrap {
   position: relative;
-  margin-top: 12px;
+  margin-top: 10px;
   height: 40px;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.08);
@@ -554,7 +561,6 @@ body {
   height: 24px;
   border-radius: 4px;
   background: #0e131b;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
 }
 .bright-fill {
   position: absolute;
@@ -562,60 +568,59 @@ body {
   background: var(--accent);
   pointer-events: none;
   border-radius: 14px;
-  transition: width 0.06s linear;
+  transition: width 0.05s linear;
 }
 
-/* Toast Notification */
+/* Toast */
 .toast {
   position: absolute;
   top: 48px;
   left: 50%;
-  transform: translateX(-50%) translateY(-16px);
-  background: rgba(22, 27, 36, 0.95);
+  transform: translateX(-50%) translateY(-14px) scale(0.96);
+  background: rgba(20, 25, 34, 0.94);
   backdrop-filter: blur(16px);
   border: 1px solid var(--border);
   color: var(--text);
-  padding: 8px 15px;
+  padding: 7px 15px;
   border-radius: 20px;
   font-size: 12px;
   font-weight: 500;
   z-index: 40;
   opacity: 0;
   pointer-events: none;
-  transition: all 0.24s ease;
+  transition: all 0.24s var(--spring);
   white-space: nowrap;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
 }
 .toast.show {
   opacity: 1;
-  transform: translateX(-50%) translateY(0);
+  transform: translateX(-50%) translateY(0) scale(1);
 }
 
-/* Shared App UI Components */
+/* Shared Components */
 .card {
-  background: rgba(255, 255, 255, 0.055);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
   border-radius: 20px;
-  padding: 15px;
-  margin-bottom: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
 }
 
-input[type="text"], input[type="url"], input:not([type]), textarea {
+input[type="text"], input:not([type]), textarea {
   width: 100%;
   background: rgba(15, 19, 26, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.11);
   border-radius: 14px;
   padding: 11px 13px;
   color: var(--text);
   font-family: inherit;
   font-size: 13.5px;
-  margin-top: 8px;
   outline: none;
   transition: border-color 0.2s;
 }
 input:focus, textarea:focus { border-color: var(--accent); }
-textarea { min-height: 110px; resize: vertical; line-height: 1.45; }
+textarea { min-height: 92px; resize: vertical; line-height: 1.45; }
 
 .action {
   background: var(--accent);
@@ -626,30 +631,48 @@ textarea { min-height: 110px; resize: vertical; line-height: 1.45; }
   font-family: inherit;
   font-weight: 600;
   font-size: 13px;
-  margin-top: 10px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 7px;
-  transition: transform 0.12s, filter 0.15s;
+  transition: transform 0.15s var(--spring), filter 0.15s;
 }
-.action:active { transform: scale(0.97); }
-.action:hover { filter: brightness(1.06); }
+.action:active { transform: scale(0.95); }
 .action.secondary {
-  background: rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.085);
   color: var(--text);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
-.action.danger {
-  background: #ef4444;
-  color: #ffffff;
-}
+.action.danger { background: #ef4444; color: #fff; }
 
-.row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
+.row { display: flex; gap: 8px; align-items: center; }
+
+/* Segmented Tabs */
+.seg {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 3px;
+  margin-bottom: 12px;
+}
+.seg button {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 8px;
+  border-radius: 11px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.seg button.active {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text);
 }
 
 /* Calculator */
@@ -658,15 +681,15 @@ textarea { min-height: 110px; resize: vertical; line-height: 1.45; }
   color: var(--muted);
   text-align: right;
   min-height: 18px;
-  padding: 0 10px;
+  padding: 0 8px;
   font-variant-numeric: tabular-nums;
 }
 .calc-display {
   font-family: var(--font-display);
-  font-size: 38px;
+  font-size: 40px;
   font-weight: 300;
   text-align: right;
-  padding: 4px 10px 14px;
+  padding: 4px 8px 14px;
   overflow-wrap: anywhere;
   font-variant-numeric: tabular-nums;
 }
@@ -687,19 +710,19 @@ textarea { min-height: 110px; resize: vertical; line-height: 1.45; }
   cursor: pointer;
   display: grid;
   place-items: center;
-  transition: background 0.12s, transform 0.1s;
+  transition: background 0.12s, transform 0.14s var(--spring);
 }
-.calc-grid button:active { transform: scale(0.93); background: rgba(255, 255, 255, 0.16); }
-.calc-grid button.op { background: rgba(255, 255, 255, 0.14); color: var(--accent); font-weight: 600; }
+.calc-grid button:active { transform: scale(0.91); background: rgba(255, 255, 255, 0.17); }
+.calc-grid button.op { background: rgba(255, 255, 255, 0.13); color: var(--accent); font-weight: 600; }
 .calc-grid button.eq { background: var(--accent); color: #0b0e12; font-weight: 700; }
 
-/* Phone Dialer */
+/* Phone */
 .dial-num {
   font-family: var(--font-display);
   font-size: 28px;
   font-weight: 400;
   text-align: center;
-  min-height: 40px;
+  min-height: 38px;
   letter-spacing: 1px;
   margin-bottom: 14px;
   font-variant-numeric: tabular-nums;
@@ -719,16 +742,16 @@ textarea { min-height: 110px; resize: vertical; line-height: 1.45; }
   font-size: 20px;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.12s, transform 0.1s;
+  transition: transform 0.14s var(--spring), background 0.12s;
 }
-.dial-grid button:active { transform: scale(0.94); background: rgba(255, 255, 255, 0.16); }
+.dial-grid button:active { transform: scale(0.92); background: rgba(255, 255, 255, 0.16); }
 
 /* Messages */
 .chat-box {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 360px;
+  max-height: 350px;
   overflow-y: auto;
   margin-bottom: 10px;
 }
@@ -759,22 +782,47 @@ textarea { min-height: 110px; resize: vertical; line-height: 1.45; }
   gap: 10px;
 }
 .photo-tile {
-  height: 124px;
+  height: 118px;
   border-radius: 16px;
-  padding: 12px;
+  padding: 11px;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
-  transition: transform 0.15s;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.18s var(--spring);
 }
-.photo-tile:active { transform: scale(0.96); }
+.photo-tile:active { transform: scale(0.95); }
 
-/* Weather hourly strip */
+/* Weather */
+.chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.chip {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.chip.active {
+  background: var(--accent);
+  color: #0b0e12;
+  border-color: transparent;
+  font-weight: 600;
+}
 .hourly-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -782,7 +830,7 @@ textarea { min-height: 110px; resize: vertical; line-height: 1.45; }
   text-align: center;
 }
 .hourly-item {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.045);
   border-radius: 14px;
   padding: 10px 6px;
   display: flex;
@@ -792,22 +840,107 @@ textarea { min-height: 110px; resize: vertical; line-height: 1.45; }
   font-size: 12px;
 }
 
-/* Settings swatches */
-.swatches {
+/* Tasks */
+.task-item {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 10px;
-  margin-top: 10px;
-  flex-wrap: wrap;
+  padding: 11px 13px;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s var(--spring);
 }
+.task-item:active { transform: scale(0.98); }
+.task-check {
+  width: 20px;
+  height: 20px;
+  border-radius: 7px;
+  border: 1.8px solid rgba(255, 255, 255, 0.32);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.task-item.done .task-check {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0b0e12;
+}
+.task-item.done .task-label {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+
+/* Focus Breathing Halo */
+.breath-stage {
+  display: grid;
+  place-items: center;
+  height: 230px;
+  position: relative;
+}
+.breath-ring {
+  width: 126px;
+  height: 126px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.12), transparent 72%);
+  border: 2px solid var(--accent);
+  box-shadow: 0 0 36px rgba(183, 243, 107, 0.18);
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transition: transform 4s ease-in-out, box-shadow 4s ease-in-out;
+}
+.breath-ring.inhale { transform: scale(1.42); }
+.breath-ring.hold   { transform: scale(1.42); }
+.breath-ring.exhale { transform: scale(0.92); }
+
+/* Sketch Canvas */
+.sketch-canvas {
+  width: 100%;
+  height: 310px;
+  background: #0b0e14;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  touch-action: none;
+  display: block;
+  cursor: crosshair;
+}
+
+/* Music Player */
+.track-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.track-row.active {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--accent);
+}
+
+/* Swatches */
+.swatches { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
 .swatch {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.28);
+  border: 2px solid rgba(255, 255, 255, 0.25);
   cursor: pointer;
-  transition: transform 0.15s;
+  transition: transform 0.15s var(--spring);
 }
-.swatch:active { transform: scale(0.9); }
+.swatch:active { transform: scale(0.88); }
 </style>
 </head>
 
@@ -815,27 +948,25 @@ textarea { min-height: 110px; resize: vertical; line-height: 1.45; }
 <div class="phone-wrap">
   <div class="vol-btn vol-up"></div>
   <div class="vol-btn vol-down"></div>
-  <button class="power-btn" title="Lock / Wake SkyOS" onclick="toggleLock()"></button>
+  <button class="power-btn" title="Lock / Wake" onclick="toggleLock()"></button>
 
   <div class="phone">
     <main class="screen" id="screen">
 
-      <div class="island" id="island">
+      <div class="island" id="island" onclick="handleIslandTap()">
         <span class="island-dot"></span>
+        <span class="island-wave"><span></span><span></span><span></span></span>
         <span class="island-lens"></span>
       </div>
       <div class="toast" id="toast"></div>
 
-      <!-- Status Bar (Tap for Quick Settings) -->
-      <div class="status" onclick="toggleControlCenter()" title="Tap for Quick Settings">
+      <!-- Status Bar -->
+      <div class="status" onclick="toggleControlCenter()">
         <span id="statusTime">09:41</span>
         <span class="status-icons">
           <span id="wifiIcon" style="display:inline-flex;"></span>
           <span id="signalIcon" style="display:inline-flex;"></span>
-          <span class="batt-chip">
-            <span id="battText">98%</span>
-            <span id="battIcon" style="display:inline-flex;"></span>
-          </span>
+          <span id="battIcon" style="display:inline-flex;"></span>
         </span>
       </div>
 
@@ -844,22 +975,22 @@ textarea { min-height: 110px; resize: vertical; line-height: 1.45; }
         <div class="lock-top">
           <div class="lock-badge" id="lockGlyph"></div>
           <div class="lock-clock" id="lockClock">09:41</div>
-          <div class="lock-date" id="lockDate">Friday, November 20</div>
+          <div class="lock-date" id="lockDate">Fri, Nov 20</div>
         </div>
-        <div class="lock-hint" id="lockHint">Tap anywhere to unlock</div>
+        <div class="lock-cue" id="lockCue"></div>
       </div>
 
-      <!-- Quick Settings / Control Center -->
+      <!-- Control Center -->
       <div class="control-center" id="controlCenter">
-        <div class="panel-head" style="margin-bottom: 4px;">
-          <h2>Quick Settings</h2>
-          <button class="icon-btn" onclick="toggleControlCenter()" aria-label="Close Quick Settings" id="ccCloseBtn"></button>
+        <div class="panel-head" style="margin-bottom: 2px;">
+          <h2>Control</h2>
+          <button class="icon-btn" onclick="toggleControlCenter()" id="ccCloseBtn"></button>
         </div>
 
         <div class="cc-grid">
           <button class="cc-tile active" id="ccWifi" onclick="toggleCC(this, 'Wi-Fi')"></button>
           <button class="cc-tile active" id="ccBt" onclick="toggleCC(this, 'Bluetooth')"></button>
-          <button class="cc-tile" id="ccPlane" onclick="toggleCC(this, 'Airplane Mode')"></button>
+          <button class="cc-tile" id="ccPlane" onclick="toggleCC(this, 'Airplane')"></button>
           <button class="cc-tile" id="ccMute" onclick="toggleSound(this)"></button>
         </div>
 
@@ -878,37 +1009,36 @@ textarea { min-height: 110px; resize: vertical; line-height: 1.45; }
         <button class="action secondary" style="width:100%;" id="ccLockBtn" onclick="toggleControlCenter(); lockPhone();"></button>
       </div>
 
-      <!-- Home Content -->
-      <section class="content">
-        <div class="date" id="date"></div>
-        <div class="clock" id="clock">09:41</div>
+      <!-- Home Layer -->
+      <div class="home-layer">
+        <section class="content">
+          <div class="date" id="date"></div>
+          <div class="clock" id="clock">09:41</div>
 
-        <div class="widget" onclick="openApp('weather')">
-          <div>
-            <strong id="greeting">Good evening.</strong>
-            <p>SkyOS 1.0 — Tap status bar for Quick Settings</p>
+          <div class="widget" onclick="openApp('weather')">
+            <div>
+              <strong id="greeting">Evening</strong>
+              <div class="widget-meta" id="widgetSub">Berlin · Clear</div>
+            </div>
+            <div class="widget-pill">
+              <span id="widgetWeatherIcon" style="display:inline-flex;"></span>
+              <span id="widgetTemp">18°</span>
+            </div>
           </div>
-          <div class="widget-pill">
-            <span id="widgetWeatherIcon"></span>
-            <span>18°</span>
-          </div>
-        </div>
 
-        <div class="section-label">Applications</div>
-        <div class="grid" id="homeGrid"></div>
-      </section>
+          <div class="grid" id="homeGrid"></div>
+        </section>
 
-      <!-- Dock -->
-      <div class="dock" id="dockGrid"></div>
+        <div class="dock" id="dockGrid"></div>
+      </div>
 
-      <!-- Home Gesture Bar -->
-      <div class="nav" onclick="goHome()" title="Home"><span></span></div>
+      <div class="nav" onclick="goHome()"><span></span></div>
 
-      <!-- Active App Window -->
+      <!-- App Window -->
       <section class="panel" id="panel">
         <div class="panel-head">
           <h2 id="appTitle">App</h2>
-          <button class="icon-btn" id="panelCloseBtn" onclick="closeApp()" aria-label="Close app"></button>
+          <button class="icon-btn" id="panelCloseBtn" onclick="closeApp()"></button>
         </div>
         <div id="appBody"></div>
       </section>
@@ -918,55 +1048,66 @@ textarea { min-height: 110px; resize: vertical; line-height: 1.45; }
 </div>
 
 <script>
-/* --- Custom SVG Icon Library (Zero Emojis) --- */
 const SVG = {
-  // System Line Icons
-  wifi: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1.2" fill="currentColor" stroke="none"/></svg>`,
-  wifiOff: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"><line x1="2" y1="2" x2="22" y2="22"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/></svg>`,
-  signal: `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="15" width="3.5" height="6" rx="1.2"/><rect x="7.5" y="11" width="3.5" height="10" rx="1.2"/><rect x="13" y="7" width="3.5" height="14" rx="1.2"/><rect x="18.5" y="3" width="3.5" height="18" rx="1.2" opacity="0.4"/></svg>`,
+  wifi: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1.2" fill="currentColor" stroke="none"/></svg>`,
+  wifiOff: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" opacity="0.45"><line x1="2" y1="2" x2="22" y2="22"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/></svg>`,
+  signal: `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="15" width="3.5" height="6" rx="1.2"/><rect x="7.5" y="11" width="3.5" height="10" rx="1.2"/><rect x="13" y="7" width="3.5" height="14" rx="1.2"/><rect x="18.5" y="3" width="3.5" height="18" rx="1.2" opacity="0.35"/></svg>`,
   battery: (pct = 98) => {
     const w = Math.max(2, Math.round((pct / 100) * 14));
-    return `<svg width="22" height="12" viewBox="0 0 24 12" fill="none"><rect x="1" y="1" width="18" height="10" rx="3" stroke="currentColor" stroke-width="1.6"/><rect x="3" y="3" width="${w}" height="6" rx="1.4" fill="currentColor"/><path d="M21 4v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
+    return `<svg width="23" height="12" viewBox="0 0 24 12" fill="none"><rect x="1" y="1" width="18" height="10" rx="3" stroke="currentColor" stroke-width="1.6"/><rect x="3" y="3" width="${w}" height="6" rx="1.4" fill="currentColor"/><path d="M21 4v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
   },
-  lock: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="3"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>`,
-  chevronUp: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>`,
+  lock: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="11" width="16" height="10" rx="3"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>`,
+  chevronUp: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>`,
   close: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>`,
   bluetooth: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="m7 7 10 10-5 5V2l5 5L7 17"/></svg>`,
   plane: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>`,
-  volumeOn: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>`,
-  volumeOff: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>`,
+  volumeOn: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`,
+  volumeOff: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>`,
   sun: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>`,
   backspace: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>`,
-  trash: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`,
+  trash: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`,
   plus: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>`,
   phoneCall: `<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.98.98 0 0 0-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg>`,
-  user: `<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+  user: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
   send: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`,
-  external: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`,
-  partlyCloudy: (size = 22) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none"><circle cx="15.5" cy="8.5" r="4" fill="#fbbf24"/><path d="M17.5 18H7a4.5 4.5 0 0 1-.4-8.98A5.5 5.5 0 0 1 17.2 10.5a3.75 3.75 0 0 1 .3 7.5z" fill="rgba(255,255,255,0.92)"/></svg>`,
-  cloud: (size = 20) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="rgba(255,255,255,0.88)"><path d="M17.5 19H7a5 5 0 0 1-.4-9.98A6 6 0 0 1 18.2 11a4 4 0 0 1-.7 8z"/></svg>`,
-  check: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+  external: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`,
+  partlyCloudy: (s = 22) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none"><circle cx="15.5" cy="8.5" r="4" fill="#fbbf24"/><path d="M17.5 18H7a4.5 4.5 0 0 1-.4-8.98A5.5 5.5 0 0 1 17.2 10.5a3.75 3.75 0 0 1 .3 7.5z" fill="rgba(255,255,255,0.92)"/></svg>`,
+  cloud: (s = 20) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="rgba(255,255,255,0.88)"><path d="M17.5 19H7a5 5 0 0 1-.4-9.98A6 6 0 0 1 18.2 11a4 4 0 0 1-.7 8z"/></svg>`,
+  sunColor: (s = 22) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="5" fill="#fbbf24"/><path d="M12 2v2.5M12 19.5V22M4.93 4.93l1.77 1.77M17.3 17.3l1.77 1.77M2 12h2.5M19.5 12H22M4.93 19.07l1.77-1.77M17.3 6.7l1.77-1.77" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/></svg>`,
+  check: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+  play: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="6,4 20,12 6,20"/></svg>`,
+  pause: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>`,
+  save: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>`,
+  micOff: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"/><line x1="12" y1="19" x2="12" y2="23"/></svg>`,
 
-  // Bespoke App Icon Artworks
-  appNotes: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="4.5" y="3" width="15" height="18" rx="3" fill="rgba(255,255,255,0.92)"/><path d="M8 8.5h8M8 12h8M8 15.5h5" stroke="#b45309" stroke-width="1.9" stroke-linecap="round"/></svg>`,
-  appCalc: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M7.5 5v5M5 7.5h5" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round"/><path d="M14 7.5h5" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round"/><path d="M5.7 14.7l3.6 3.6M9.3 14.7l-3.6 3.6" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round"/><rect x="13.5" y="13.5" width="6" height="6" rx="2" fill="var(--accent)"/><path d="M15 15.7h3M15 17.5h3" stroke="#0f172a" stroke-width="1.5" stroke-linecap="round"/></svg>`,
-  appGallery: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="16.5" cy="8" r="2.2" fill="#fde68a"/><path d="M3.5 18.5 9.2 11l4 4.8 2.8-3.3 4.5 6H3.5z" fill="rgba(255,255,255,0.92)"/></svg>`,
-  appBrowser: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.2" stroke="rgba(255,255,255,0.9)" stroke-width="1.8"/><polygon points="15.2,8.8 13.4,13.4 8.8,15.2 10.6,10.6" fill="#ffffff"/></svg>`,
-  appWeather: `<svg width="29" height="29" viewBox="0 0 24 24" fill="none"><circle cx="15.5" cy="8.5" r="3.8" fill="#fde047"/><path d="M17.5 18.2H7a4.5 4.5 0 0 1-.4-8.98A5.5 5.5 0 0 1 17.2 10.7a3.75 3.75 0 0 1 .3 7.5z" fill="#ffffff"/></svg>`,
-  appClock: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="7.5" stroke="rgba(255,255,255,0.92)" stroke-width="1.9"/><path d="M10 3.2h4" stroke="rgba(255,255,255,0.92)" stroke-width="2" stroke-linecap="round"/><path d="M12 13V9.2M12 13l3 2" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/></svg>`,
-  appSettings: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.92)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.6.77 1.02 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
-  appAbout: `<svg width="29" height="29" viewBox="0 0 24 24" fill="none"><path d="M17.5 18.2H7a4.5 4.5 0 0 1-.4-8.98A5.5 5.5 0 0 1 17.2 10.7a3.75 3.75 0 0 1 .3 7.5z" fill="rgba(255,255,255,0.95)"/><circle cx="12" cy="14" r="1.4" fill="#0284c7"/></svg>`,
-  appPhone: `<svg width="26" height="26" viewBox="0 0 24 24" fill="#ffffff"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.98.98 0 0 0-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg>`,
-  appMessages: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M20 4H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h3.5l3.5 3.2L14.5 18H20a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" fill="#ffffff"/><circle cx="8" cy="11" r="1.3" fill="#0284c7"/><circle cx="12" cy="11" r="1.3" fill="#0284c7"/><circle cx="16" cy="11" r="1.3" fill="#0284c7"/></svg>`
+  // App Icon Artworks
+  appNotes: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="4.5" y="3" width="15" height="18" rx="3" fill="rgba(255,255,255,0.92)"/><path d="M8 8.5h8M8 12h8M8 15.5h5" stroke="#b45309" stroke-width="1.9" stroke-linecap="round"/></svg>`,
+  appCalc: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M7.5 5v5M5 7.5h5M14 7.5h5M5.7 14.7l3.6 3.6M9.3 14.7l-3.6 3.6" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round"/><rect x="13.5" y="13.5" width="6" height="6" rx="2" fill="var(--accent)"/><path d="M15 15.7h3M15 17.5h3" stroke="#0f172a" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+  appGallery: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="16.5" cy="8" r="2.2" fill="#fde68a"/><path d="M3.5 18.5 9.2 11l4 4.8 2.8-3.3 4.5 6H3.5z" fill="rgba(255,255,255,0.92)"/></svg>`,
+  appBrowser: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.2" stroke="rgba(255,255,255,0.92)" stroke-width="1.8"/><polygon points="15.2,8.8 13.4,13.4 8.8,15.2 10.6,10.6" fill="#ffffff"/></svg>`,
+  appWeather: `<svg width="27" height="27" viewBox="0 0 24 24" fill="none"><circle cx="15.5" cy="8.5" r="3.8" fill="#fde047"/><path d="M17.5 18.2H7a4.5 4.5 0 0 1-.4-8.98A5.5 5.5 0 0 1 17.2 10.7a3.75 3.75 0 0 1 .3 7.5z" fill="#ffffff"/></svg>`,
+  appClock: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="7.5" stroke="rgba(255,255,255,0.92)" stroke-width="1.9"/><path d="M10 3.2h4" stroke="rgba(255,255,255,0.92)" stroke-width="2" stroke-linecap="round"/><path d="M12 13V9.2M12 13l3 2" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/></svg>`,
+  appMusic: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M9 18V5l10-2v13" stroke="#ffffff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6.5" cy="18" r="2.5" fill="#ffffff"/><circle cx="16.5" cy="16" r="2.5" fill="#ffffff"/></svg>`,
+  appFocus: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="7.5" stroke="rgba(255,255,255,0.9)" stroke-width="1.8"/><circle cx="12" cy="12" r="3" fill="#ffffff"/></svg>`,
+  appSketch: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/></svg>`,
+  appTasks: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
+  appSettings: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.92)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.6.77 1.02 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
+  appAbout: `<svg width="27" height="27" viewBox="0 0 24 24" fill="none"><path d="M17.5 18.2H7a4.5 4.5 0 0 1-.4-8.98A5.5 5.5 0 0 1 17.2 10.7a3.75 3.75 0 0 1 .3 7.5z" fill="rgba(255,255,255,0.95)"/><circle cx="12" cy="14" r="1.4" fill="#0369a1"/></svg>`,
+  appPhone: `<svg width="24" height="24" viewBox="0 0 24 24" fill="#ffffff"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.98.98 0 0 0-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg>`,
+  appMessages: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M20 4H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h3.5l3.5 3.2L14.5 18H20a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" fill="#ffffff"/><circle cx="8" cy="11" r="1.3" fill="#0284c7"/><circle cx="12" cy="11" r="1.3" fill="#0284c7"/><circle cx="16" cy="11" r="1.3" fill="#0284c7"/></svg>`
 };
 
 const HOME_APPS = [
   { id: 'notes',      label: 'Notes',      cls: 'ico-notes',    svg: SVG.appNotes },
-  { id: 'calculator', label: 'Calculator', cls: 'ico-calc',     svg: SVG.appCalc },
+  { id: 'tasks',      label: 'Tasks',      cls: 'ico-tasks',    svg: SVG.appTasks },
+  { id: 'calculator', label: 'Calc',       cls: 'ico-calc',     svg: SVG.appCalc },
+  { id: 'clock',      label: 'Clock',      cls: 'ico-clock',    svg: SVG.appClock },
+  { id: 'weather',    label: 'Weather',    cls: 'ico-weather',  svg: SVG.appWeather },
+  { id: 'music',      label: 'Music',      cls: 'ico-music',    svg: SVG.appMusic },
+  { id: 'focus',      label: 'Focus',      cls: 'ico-focus',    svg: SVG.appFocus },
+  { id: 'sketch',     label: 'Sketch',     cls: 'ico-sketch',   svg: SVG.appSketch },
   { id: 'gallery',    label: 'Gallery',    cls: 'ico-gallery',  svg: SVG.appGallery },
   { id: 'browser',    label: 'Browser',    cls: 'ico-browser',  svg: SVG.appBrowser },
-  { id: 'weather',    label: 'Weather',    cls: 'ico-weather',  svg: SVG.appWeather },
-  { id: 'clock',      label: 'Timer',      cls: 'ico-clock',    svg: SVG.appClock },
   { id: 'settings',   label: 'Settings',   cls: 'ico-settings', svg: SVG.appSettings },
   { id: 'about',      label: 'About',      cls: 'ico-about',    svg: SVG.appAbout }
 ];
@@ -974,59 +1115,40 @@ const HOME_APPS = [
 const DOCK_APPS = [
   { id: 'phone',    label: 'Phone',    cls: 'ico-phone',    svg: SVG.appPhone },
   { id: 'messages', label: 'Messages', cls: 'ico-messages', svg: SVG.appMessages },
-  { id: 'browser',  label: 'Browser',  cls: 'ico-browser',  svg: SVG.appBrowser },
+  { id: 'music',    label: 'Music',    cls: 'ico-music',    svg: SVG.appMusic },
   { id: 'settings', label: 'Settings', cls: 'ico-settings', svg: SVG.appSettings }
 ];
 
 const WALLPAPERS = [
-  {
-    name: 'Midnight Slate',
-    bg: 'radial-gradient(circle at 18% 18%, rgba(88, 138, 194, 0.42), transparent 52%), radial-gradient(circle at 86% 74%, rgba(56, 189, 248, 0.2), transparent 50%), linear-gradient(160deg, #1b2736 0%, #101620 55%, #090c11 100%)'
-  },
-  {
-    name: 'Aurora Violet',
-    bg: 'radial-gradient(circle at 22% 16%, rgba(168, 85, 247, 0.42), transparent 52%), radial-gradient(circle at 82% 80%, rgba(59, 130, 246, 0.28), transparent 50%), linear-gradient(155deg, #271a3e 0%, #121829 60%, #090b10 100%)'
-  },
-  {
-    name: 'Nordic Pine',
-    bg: 'radial-gradient(circle at 15% 22%, rgba(45, 212, 191, 0.34), transparent 50%), radial-gradient(circle at 85% 75%, rgba(16, 185, 129, 0.22), transparent 52%), linear-gradient(155deg, #13312e 0%, #0f1b20 60%, #080c0f 100%)'
-  },
-  {
-    name: 'Sunset Ember',
-    bg: 'radial-gradient(circle at 20% 20%, rgba(251, 146, 60, 0.42), transparent 50%), radial-gradient(circle at 82% 78%, rgba(244, 63, 94, 0.25), transparent 50%), linear-gradient(155deg, #3f2222 0%, #1f1724 58%, #0c0a10 100%)'
-  },
-  {
-    name: 'Deep Ocean',
-    bg: 'radial-gradient(circle at 24% 18%, rgba(14, 165, 233, 0.38), transparent 52%), radial-gradient(circle at 80% 78%, rgba(99, 102, 241, 0.28), transparent 52%), linear-gradient(155deg, #11324d 0%, #0d1a2d 60%, #070b12 100%)'
-  }
+  { name: 'Slate',  bg: 'radial-gradient(circle at 18% 18%, rgba(88, 138, 194, 0.42), transparent 52%), radial-gradient(circle at 86% 74%, rgba(56, 189, 248, 0.2), transparent 50%), linear-gradient(160deg, #1b2736 0%, #101620 55%, #090c11 100%)' },
+  { name: 'Aurora', bg: 'radial-gradient(circle at 22% 16%, rgba(168, 85, 247, 0.42), transparent 52%), radial-gradient(circle at 82% 80%, rgba(59, 130, 246, 0.28), transparent 50%), linear-gradient(155deg, #271a3e 0%, #121829 60%, #090b10 100%)' },
+  { name: 'Pine',   bg: 'radial-gradient(circle at 15% 22%, rgba(45, 212, 191, 0.34), transparent 50%), radial-gradient(circle at 85% 75%, rgba(16, 185, 129, 0.22), transparent 52%), linear-gradient(155deg, #13312e 0%, #0f1b20 60%, #080c0f 100%)' },
+  { name: 'Ember',  bg: 'radial-gradient(circle at 20% 20%, rgba(251, 146, 60, 0.42), transparent 50%), radial-gradient(circle at 82% 78%, rgba(244, 63, 94, 0.25), transparent 50%), linear-gradient(155deg, #3f2222 0%, #1f1724 58%, #0c0a10 100%)' },
+  { name: 'Ocean',  bg: 'radial-gradient(circle at 24% 18%, rgba(14, 165, 233, 0.38), transparent 52%), radial-gradient(circle at 80% 78%, rgba(99, 102, 241, 0.28), transparent 52%), linear-gradient(155deg, #11324d 0%, #0d1a2d 60%, #070b12 100%)' }
 ];
 
 let soundEnabled = true;
 let activeApp = null;
-let timerInterval = null;
-let timerSeconds = 0;
 let currentWallIdx = 0;
 
 /* --- System Initialization --- */
 function initSkyOS() {
-  // Mount static SVG chrome
   document.getElementById('wifiIcon').innerHTML = SVG.wifi;
   document.getElementById('signalIcon').innerHTML = SVG.signal;
   document.getElementById('battIcon').innerHTML = SVG.battery(98);
   document.getElementById('lockGlyph').innerHTML = SVG.lock;
-  document.getElementById('lockHint').innerHTML = `${SVG.chevronUp}<span>Tap anywhere to unlock</span>`;
+  document.getElementById('lockCue').innerHTML = SVG.chevronUp;
   document.getElementById('ccCloseBtn').innerHTML = SVG.close;
   document.getElementById('panelCloseBtn').innerHTML = SVG.close;
-  document.getElementById('widgetWeatherIcon').innerHTML = SVG.partlyCloudy(24);
+  document.getElementById('widgetWeatherIcon').innerHTML = SVG.partlyCloudy(20);
   document.getElementById('brightLabel').innerHTML = `${SVG.sun}<span>Brightness</span>`;
 
   document.getElementById('ccWifi').innerHTML = `${SVG.wifi}<span>Wi-Fi</span>`;
   document.getElementById('ccBt').innerHTML = `${SVG.bluetooth}<span>Bluetooth</span>`;
   document.getElementById('ccPlane').innerHTML = `${SVG.plane}<span>Airplane</span>`;
-  document.getElementById('ccMute').innerHTML = `${SVG.volumeOn}<span>Sound On</span>`;
-  document.getElementById('ccLockBtn').innerHTML = `${SVG.lock}<span>Lock Screen</span>`;
+  document.getElementById('ccMute').innerHTML = `${SVG.volumeOn}<span>Sound</span>`;
+  document.getElementById('ccLockBtn').innerHTML = `${SVG.lock}<span>Lock</span>`;
 
-  // Mount Home & Dock Icons
   document.getElementById('homeGrid').innerHTML = HOME_APPS.map(a => `
     <button class="app" onclick="openApp('${a.id}')">
       <span class="icon ${a.cls}">${a.svg}</span>
@@ -1040,11 +1162,8 @@ function initSkyOS() {
     </button>
   `).join('');
 
-  // Restore Preferences
   const savedAccent = localStorage.getItem('skyos-accent');
-  if (savedAccent) {
-    document.documentElement.style.setProperty('--accent', savedAccent);
-  }
+  if (savedAccent) document.documentElement.style.setProperty('--accent', savedAccent);
 
   const savedWall = localStorage.getItem('skyos-wallpaper');
   if (savedWall !== null && WALLPAPERS[savedWall]) {
@@ -1061,9 +1180,7 @@ function initSkyOS() {
   if (navigator.getBattery) {
     navigator.getBattery().then(b => {
       const updateBatt = () => {
-        const pct = Math.round(b.level * 100);
-        document.getElementById('battText').textContent = `${pct}%`;
-        document.getElementById('battIcon').innerHTML = SVG.battery(pct);
+        document.getElementById('battIcon').innerHTML = SVG.battery(Math.round(b.level * 100));
       };
       updateBatt();
       b.addEventListener('levelchange', updateBatt);
@@ -1077,13 +1194,13 @@ function initSkyOS() {
 function updateClock() {
   const d = new Date();
   const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  const dateStr = d.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
+  const dateStr = d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
   const hr = d.getHours();
 
-  let greet = 'Good evening.';
-  if (hr < 5) greet = 'Up late?';
-  else if (hr < 12) greet = 'Good morning.';
-  else if (hr < 18) greet = 'Good afternoon.';
+  let greet = 'Evening';
+  if (hr < 5) greet = 'Night';
+  else if (hr < 12) greet = 'Morning';
+  else if (hr < 18) greet = 'Afternoon';
 
   document.getElementById('clock').textContent = time;
   document.getElementById('statusTime').textContent = time;
@@ -1100,34 +1217,40 @@ function showToast(msg) {
   t.textContent = msg;
   t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
 }
 
 let audioCtx = null;
-function playTone(freq = 520, duration = 0.05) {
+function getAudio() {
+  audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+function playTone(freq = 520, duration = 0.045) {
   if (!soundEnabled) return;
   try {
-    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
+    const ctx = getAudio();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
     osc.frequency.value = freq;
-    gain.gain.setValueAtTime(0.045, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    gain.gain.setValueAtTime(0.04, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
     osc.connect(gain);
-    gain.connect(audioCtx.destination);
+    gain.connect(ctx.destination);
     osc.start();
-    osc.stop(audioCtx.currentTime + duration);
+    osc.stop(ctx.currentTime + duration);
   } catch {}
 }
 
 /* --- Lock Screen & Control Center --- */
 function unlockPhone() {
-  playTone(640, 0.06);
+  playTone(640, 0.05);
   document.getElementById('lockscreen').classList.add('unlocked');
 }
 
 function lockPhone() {
-  playTone(400, 0.06);
+  playTone(400, 0.05);
   document.getElementById('controlCenter').classList.remove('open');
   document.getElementById('lockscreen').classList.remove('unlocked');
 }
@@ -1149,16 +1272,16 @@ function toggleCC(btn, label) {
   if (label === 'Wi-Fi') {
     document.getElementById('wifiIcon').innerHTML = active ? SVG.wifi : SVG.wifiOff;
   }
-  showToast(`${label} ${active ? 'enabled' : 'disabled'}`);
+  showToast(`${label} ${active ? 'On' : 'Off'}`);
 }
 
 function toggleSound(btn) {
   soundEnabled = !soundEnabled;
   btn.classList.toggle('active', !soundEnabled);
   btn.innerHTML = soundEnabled
-    ? `${SVG.volumeOn}<span>Sound On</span>`
+    ? `${SVG.volumeOn}<span>Sound</span>`
     : `${SVG.volumeOff}<span>Muted</span>`;
-  showToast(soundEnabled ? 'System sounds on' : 'System muted');
+  showToast(soundEnabled ? 'Sound On' : 'Muted');
 }
 
 function setBrightness(val, save = true) {
@@ -1169,6 +1292,12 @@ function setBrightness(val, save = true) {
   if (save) localStorage.setItem('skyos-brightness', val);
 }
 
+function handleIslandTap() {
+  if (!document.getElementById('lockscreen').classList.contains('unlocked')) return;
+  if (musicState.playing) openApp('music');
+  else if (inCall) openApp('phone');
+}
+
 function goHome() {
   document.getElementById('controlCenter').classList.remove('open');
   closeApp();
@@ -1176,67 +1305,56 @@ function goHome() {
 
 /* --- App Launcher --- */
 function openApp(name) {
-  playTone(540, 0.04);
+  playTone(540, 0.035);
   activeApp = name;
 
   const titles = {
-    notes: 'Notes', calculator: 'Calculator', gallery: 'Gallery',
-    browser: 'Sky Browser', settings: 'Settings', about: 'About SkyOS',
-    phone: 'Phone', messages: 'Messages', weather: 'Weather', clock: 'Timer'
+    notes: 'Notes', tasks: 'Tasks', calculator: 'Calculator', clock: 'Clock',
+    weather: 'Weather', music: 'Music', focus: 'Focus', sketch: 'Sketch',
+    gallery: 'Gallery', browser: 'Browser', settings: 'Settings', about: 'About',
+    phone: 'Phone', messages: 'Messages'
   };
 
   document.getElementById('appTitle').textContent = titles[name] || 'App';
   const body = document.getElementById('appBody');
 
-  if (name === 'notes') renderNotes(body);
-  else if (name === 'calculator') renderCalculator(body);
-  else if (name === 'gallery') renderGallery(body);
-  else if (name === 'browser') renderBrowser(body);
-  else if (name === 'settings') renderSettings(body);
-  else if (name === 'phone') renderPhone(body);
-  else if (name === 'messages') renderMessages(body);
-  else if (name === 'weather') renderWeather(body);
-  else if (name === 'clock') renderTimer(body);
-  else if (name === 'about') renderAbout(body);
+  const renderers = {
+    notes: renderNotes, tasks: renderTasks, calculator: renderCalculator,
+    clock: renderClockApp, weather: renderWeather, music: renderMusic,
+    focus: renderFocus, sketch: renderSketch, gallery: renderGallery,
+    browser: renderBrowser, settings: renderSettings, about: renderAbout,
+    phone: renderPhone, messages: renderMessages
+  };
+  if (renderers[name]) renderers[name](body);
 
+  document.getElementById('screen').classList.add('app-open');
   document.getElementById('panel').classList.add('show');
 }
 
 function closeApp() {
+  if (activeApp === 'focus') stopBreathing();
   activeApp = null;
-  document.getElementById('island').classList.remove('calling');
+  if (inCall) endCallState();
+  document.getElementById('screen').classList.remove('app-open');
   document.getElementById('panel').classList.remove('show');
 }
 
-/* --- 1. Notes App --- */
+/* --- 1. Notes --- */
 function getNotes() {
-  try {
-    return JSON.parse(localStorage.getItem('skyos-notes-v2')) || [
-      { id: 1, text: 'Welcome to SkyOS Notes. Create or delete notes anytime.', date: 'Just now' }
-    ];
-  } catch { return []; }
-}
-
-function saveNotesList(list) {
-  localStorage.setItem('skyos-notes-v2', JSON.stringify(list));
+  try { return JSON.parse(localStorage.getItem('skyos-notes-v2')) || []; }
+  catch { return []; }
 }
 
 function renderNotes(body) {
   const notes = getNotes();
   body.innerHTML = `
     <div class="card">
-      <textarea id="newNoteInput" placeholder="Write a quick note..."></textarea>
-      <button class="action" onclick="addNote()">${SVG.plus}<span>Save Note</span></button>
+      <textarea id="newNoteInput" placeholder="Write a note..."></textarea>
+      <button class="action" style="margin-top:10px;" onclick="addNote()">${SVG.plus}<span>Save</span></button>
     </div>
     <div id="notesList"></div>
   `;
-
   const listEl = document.getElementById('notesList');
-  if (!notes.length) {
-    listEl.innerHTML = `<div class="card" style="color:var(--muted); font-size:13px;">No saved notes yet.</div>`;
-    return;
-  }
-
   notes.forEach(n => {
     const card = document.createElement('div');
     card.className = 'card';
@@ -1249,15 +1367,13 @@ function renderNotes(body) {
     meta.innerHTML = `<span>${n.date}</span>`;
 
     const del = document.createElement('button');
-    del.className = 'action secondary';
-    del.style.cssText = 'margin:0; padding:6px 10px; font-size:11px;';
-    del.innerHTML = `${SVG.trash}<span>Delete</span>`;
+    del.className = 'icon-btn';
+    del.style.cssText = 'width:28px; height:28px;';
+    del.innerHTML = SVG.trash;
     del.onclick = () => {
-      saveNotesList(getNotes().filter(x => x.id !== n.id));
+      localStorage.setItem('skyos-notes-v2', JSON.stringify(getNotes().filter(x => x.id !== n.id)));
       renderNotes(body);
-      showToast('Note deleted');
     };
-
     meta.appendChild(del);
     card.append(p, meta);
     listEl.appendChild(card);
@@ -1265,32 +1381,91 @@ function renderNotes(body) {
 }
 
 function addNote() {
-  const input = document.getElementById('newNoteInput');
-  const text = input.value.trim();
-  if (!text) return showToast('Write something first');
+  const text = document.getElementById('newNoteInput').value.trim();
+  if (!text) return;
   const notes = getNotes();
   notes.unshift({
     id: Date.now(),
     text,
     date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   });
-  saveNotesList(notes);
+  localStorage.setItem('skyos-notes-v2', JSON.stringify(notes));
   renderNotes(document.getElementById('appBody'));
-  showToast('Note saved');
+  showToast('Saved');
 }
 
-/* --- 2. Calculator App --- */
-let calcExpr = '';
-let calcPrev = '';
+/* --- 2. Tasks --- */
+function getTasks() {
+  try {
+    return JSON.parse(localStorage.getItem('skyos-tasks')) || [
+      { id: 1, text: 'Try Sketch & Music apps', done: false }
+    ];
+  } catch { return []; }
+}
+
+function renderTasks(body) {
+  const tasks = getTasks();
+  body.innerHTML = `
+    <div class="card">
+      <div class="row">
+        <input id="taskInput" placeholder="New task..." onkeydown="if(event.key==='Enter') addTask()">
+        <button class="action" onclick="addTask()" aria-label="Add">${SVG.plus}</button>
+      </div>
+    </div>
+    <div id="tasksList"></div>
+  `;
+  const list = document.getElementById('tasksList');
+  tasks.forEach(t => {
+    const item = document.createElement('div');
+    item.className = `task-item ${t.done ? 'done' : ''}`;
+    item.onclick = () => {
+      const next = getTasks().map(x => x.id === t.id ? { ...x, done: !x.done } : x);
+      localStorage.setItem('skyos-tasks', JSON.stringify(next));
+      renderTasks(body);
+    };
+
+    const left = document.createElement('div');
+    left.className = 'row';
+    left.style.flex = '1';
+    const chk = document.createElement('span');
+    chk.className = 'task-check';
+    if (t.done) chk.innerHTML = SVG.check;
+    const lbl = document.createElement('span');
+    lbl.className = 'task-label';
+    lbl.style.fontSize = '13.5px';
+    lbl.textContent = t.text;
+    left.append(chk, lbl);
+
+    const del = document.createElement('button');
+    del.className = 'icon-btn';
+    del.style.cssText = 'width:26px; height:26px;';
+    del.innerHTML = SVG.trash;
+    del.onclick = e => {
+      e.stopPropagation();
+      localStorage.setItem('skyos-tasks', JSON.stringify(getTasks().filter(x => x.id !== t.id)));
+      renderTasks(body);
+    };
+
+    item.append(left, del);
+    list.appendChild(item);
+  });
+}
+
+function addTask() {
+  const inp = document.getElementById('taskInput');
+  const text = inp.value.trim();
+  if (!text) return;
+  const tasks = getTasks();
+  tasks.unshift({ id: Date.now(), text, done: false });
+  localStorage.setItem('skyos-tasks', JSON.stringify(tasks));
+  renderTasks(document.getElementById('appBody'));
+}
+
+/* --- 3. Calculator --- */
+let calcExpr = '', calcPrev = '';
 
 function renderCalculator(body) {
-  const keys = [
-    'C','(',')','÷',
-    '7','8','9','×',
-    '4','5','6','−',
-    '1','2','3','+',
-    '⌫','0','.','='
-  ];
+  const keys = ['C','(',')','÷','7','8','9','×','4','5','6','−','1','2','3','+','⌫','0','.','='];
   body.innerHTML = `
     <div class="card">
       <div class="calc-expr" id="calcPrev">${calcPrev}</div>
@@ -1299,8 +1474,7 @@ function renderCalculator(body) {
         ${keys.map(k => {
           const isOp = ['÷','×','−','+','C','(',')'].includes(k);
           const cls = k === '=' ? 'eq' : (isOp ? 'op' : '');
-          const label = k === '⌫' ? SVG.backspace : k;
-          return `<button class="${cls}" onclick="calcPress('${k}')">${label}</button>`;
+          return `<button class="${cls}" onclick="calcPress('${k}')">${k === '⌫' ? SVG.backspace : k}</button>`;
         }).join('')}
       </div>
     </div>
@@ -1313,57 +1487,423 @@ function calcPress(val) {
   const prev = document.getElementById('calcPrev');
   if (!disp) return;
 
-  if (val === 'C') {
-    calcExpr = '';
-    calcPrev = '';
-    prev.textContent = '';
-    disp.textContent = '0';
-    return;
-  }
-
-  if (val === '⌫') {
-    calcExpr = calcExpr.slice(0, -1);
-    disp.textContent = calcExpr || '0';
-    return;
-  }
-
+  if (val === 'C') { calcExpr = ''; calcPrev = ''; prev.textContent = ''; disp.textContent = '0'; return; }
+  if (val === '⌫') { calcExpr = calcExpr.slice(0, -1); disp.textContent = calcExpr || '0'; return; }
   if (val === '=') {
     if (!calcExpr) return;
     try {
-      const safe = calcExpr
-        .replaceAll('÷', '/')
-        .replaceAll('×', '*')
-        .replaceAll('−', '-');
-      if (!/^[0-9+\-*/.() ]+$/.test(safe)) throw new Error('Invalid');
-      const result = Function('"use strict"; return (' + safe + ')')();
-      if (!Number.isFinite(result)) throw new Error('Math error');
-      calcPrev = calcExpr + ' =';
-      calcExpr = String(Number(result.toFixed(8)));
+      const safe = calcExpr.replaceAll('÷','/').replaceAll('×','*').replaceAll('−','-');
+      if (!/^[0-9+\-*/.() ]+$/.test(safe)) throw 0;
+      const res = Function('"use strict"; return (' + safe + ')')();
+      if (!Number.isFinite(res)) throw 0;
+      calcPrev = calcExpr;
+      calcExpr = String(Number(res.toFixed(8)));
       prev.textContent = calcPrev;
       disp.textContent = calcExpr;
     } catch {
-      calcExpr = '';
-      prev.textContent = '';
-      disp.textContent = 'Error';
+      calcExpr = ''; prev.textContent = ''; disp.textContent = 'Error';
     }
     return;
   }
-
   const ops = ['÷','×','−','+'];
-  if (ops.includes(val) && ops.includes(calcExpr.slice(-1))) {
-    calcExpr = calcExpr.slice(0, -1) + val;
-  } else {
-    calcExpr += val;
-  }
+  if (ops.includes(val) && ops.includes(calcExpr.slice(-1))) calcExpr = calcExpr.slice(0, -1) + val;
+  else calcExpr += val;
   disp.textContent = calcExpr;
 }
 
-/* --- 3. Gallery App --- */
-function renderGallery(body) {
+/* --- 4. Clock App (Stopwatch + Circular Timer) --- */
+let clockTab = 'stopwatch';
+let swMs = 0, swInt = null, swLaps = [];
+let tmTotal = 300, tmLeft = 300, tmInt = null;
+
+function renderClockApp(body) {
   body.innerHTML = `
-    <div class="card">
-      <p style="margin:0; font-size:13px; color:var(--muted);">Tap any backdrop to apply it as your SkyOS wallpaper.</p>
+    <div class="seg">
+      <button class="${clockTab === 'stopwatch' ? 'active' : ''}" onclick="clockTab='stopwatch'; renderClockApp(document.getElementById('appBody'))">Stopwatch</button>
+      <button class="${clockTab === 'timer' ? 'active' : ''}" onclick="clockTab='timer'; renderClockApp(document.getElementById('appBody'))">Timer</button>
     </div>
+    <div id="clockView"></div>
+  `;
+  const view = document.getElementById('clockView');
+  if (clockTab === 'stopwatch') renderStopwatch(view);
+  else renderCountdown(view);
+}
+
+const fmtSw = ms => {
+  const s = Math.floor(ms / 1000);
+  const m = Math.floor(s / 60);
+  const d = Math.floor((ms % 1000) / 100);
+  return `${String(m).padStart(2,'0')}:${String(s % 60).padStart(2,'0')}.${d}`;
+};
+
+function renderStopwatch(view) {
+  view.innerHTML = `
+    <div class="card" style="text-align:center; padding:26px 16px;">
+      <div id="swDisp" style="font-family:var(--font-display); font-size:48px; font-weight:280; font-variant-numeric:tabular-nums; margin-bottom:18px;">${fmtSw(swMs)}</div>
+      <div class="row" style="justify-content:center;">
+        <button class="action" onclick="toggleSw()">${swInt ? 'Pause' : 'Start'}</button>
+        <button class="action secondary" onclick="lapSw()">Lap</button>
+        <button class="action secondary" onclick="resetSw()">Reset</button>
+      </div>
+    </div>
+    <div id="lapsBox">
+      ${swLaps.map((l, i) => `
+        <div class="card" style="display:flex; justify-content:space-between; padding:10px 14px; font-size:13px; font-variant-numeric:tabular-nums;">
+          <span style="color:var(--muted);">Lap ${swLaps.length - i}</span><strong>${l}</strong>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function toggleSw() {
+  if (swInt) { clearInterval(swInt); swInt = null; }
+  else {
+    const start = Date.now() - swMs;
+    swInt = setInterval(() => {
+      swMs = Date.now() - start;
+      const d = document.getElementById('swDisp');
+      if (d) d.textContent = fmtSw(swMs);
+    }, 100);
+  }
+  if (activeApp === 'clock' && clockTab === 'stopwatch') renderStopwatch(document.getElementById('clockView'));
+}
+function lapSw() {
+  if (!swMs) return;
+  swLaps.unshift(fmtSw(swMs));
+  renderStopwatch(document.getElementById('clockView'));
+}
+function resetSw() {
+  clearInterval(swInt); swInt = null; swMs = 0; swLaps = [];
+  renderStopwatch(document.getElementById('clockView'));
+}
+
+function renderCountdown(view) {
+  const r = 64, c = 2 * Math.PI * r;
+  const off = c * (1 - tmLeft / Math.max(1, tmTotal));
+  const fmt = s => `${String(Math.floor(s / 60)).padStart(2,'0')}:${String(s % 60).padStart(2,'0')}`;
+
+  view.innerHTML = `
+    <div class="card" style="text-align:center; padding:20px 16px;">
+      <div style="position:relative; width:152px; height:152px; margin:0 auto 14px; display:grid; place-items:center;">
+        <svg width="152" height="152" style="transform:rotate(-90deg); position:absolute;">
+          <circle cx="76" cy="76" r="${r}" stroke="rgba(255,255,255,0.08)" stroke-width="6" fill="none"/>
+          <circle id="tmRing" cx="76" cy="76" r="${r}" stroke="var(--accent)" stroke-width="6" fill="none"
+            stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}" style="transition:stroke-dashoffset 0.35s linear;"/>
+        </svg>
+        <div id="tmDisp" style="font-family:var(--font-display); font-size:34px; font-weight:300; font-variant-numeric:tabular-nums;">${fmt(tmLeft)}</div>
+      </div>
+      <div class="chips" style="justify-content:center; margin-bottom:14px;">
+        ${[60, 180, 300, 600].map(sec => `
+          <button class="chip ${tmTotal === sec ? 'active' : ''}" onclick="setTimerPreset(${sec})">${sec/60}m</button>
+        `).join('')}
+      </div>
+      <div class="row" style="justify-content:center;">
+        <button class="action" onclick="toggleTimer()">${tmInt ? 'Pause' : 'Start'}</button>
+        <button class="action secondary" onclick="setTimerPreset(${tmTotal})">Reset</button>
+      </div>
+    </div>
+  `;
+}
+
+function setTimerPreset(sec) {
+  clearInterval(tmInt); tmInt = null;
+  tmTotal = sec; tmLeft = sec;
+  renderCountdown(document.getElementById('clockView'));
+}
+
+function toggleTimer() {
+  if (tmInt) { clearInterval(tmInt); tmInt = null; }
+  else {
+    if (tmLeft <= 0) tmLeft = tmTotal;
+    tmInt = setInterval(() => {
+      tmLeft--;
+      const d = document.getElementById('tmDisp');
+      const ring = document.getElementById('tmRing');
+      if (d) d.textContent = `${String(Math.floor(tmLeft/60)).padStart(2,'0')}:${String(tmLeft%60).padStart(2,'0')}`;
+      if (ring) {
+        const c = 2 * Math.PI * 64;
+        ring.style.strokeDashoffset = c * (1 - tmLeft / tmTotal);
+      }
+      if (tmLeft <= 0) {
+        clearInterval(tmInt); tmInt = null;
+        playTone(880, 0.25);
+        showToast('Timer complete');
+        if (activeApp === 'clock' && clockTab === 'timer') renderCountdown(document.getElementById('clockView'));
+      }
+    }, 1000);
+  }
+  if (activeApp === 'clock' && clockTab === 'timer') renderCountdown(document.getElementById('clockView'));
+}
+
+/* --- 5. Weather --- */
+const CITIES = {
+  Berlin:    { temp: 18, cond: 'Clear',  hum: '52%', wind: '11 km/h', uv: '3', hrs: [18, 16, 15, 14], ico: 'partly' },
+  Munich:    { temp: 15, cond: 'Cloudy', hum: '64%', wind: '14 km/h', uv: '2', hrs: [15, 14, 12, 11], ico: 'cloud' },
+  Tokyo:     { temp: 22, cond: 'Sunny',  hum: '44%', wind: '8 km/h',  uv: '6', hrs: [22, 21, 19, 18], ico: 'sun' },
+  Reykjavik: { temp: 6,  cond: 'Breezy', hum: '74%', wind: '24 km/h', uv: '1', hrs: [6, 5, 4, 4],     ico: 'cloud' }
+};
+let activeCity = 'Berlin';
+
+function renderWeather(body) {
+  const c = CITIES[activeCity];
+  const getIco = (k, s) => k === 'sun' ? SVG.sunColor(s) : (k === 'cloud' ? SVG.cloud(s) : SVG.partlyCloudy(s));
+
+  document.getElementById('widgetSub').textContent = `${activeCity} · ${c.cond}`;
+  document.getElementById('widgetTemp').textContent = `${c.temp}°`;
+  document.getElementById('widgetWeatherIcon').innerHTML = getIco(c.ico, 20);
+
+  body.innerHTML = `
+    <div class="chips">
+      ${Object.keys(CITIES).map(name => `
+        <button class="chip ${activeCity === name ? 'active' : ''}" onclick="activeCity='${name}'; renderWeather(document.getElementById('appBody'))">${name}</button>
+      `).join('')}
+    </div>
+    <div class="card" style="text-align:center; padding:24px 16px;">
+      <div style="display:inline-flex; margin-bottom:6px;">${getIco(c.ico, 54)}</div>
+      <div style="font-family:var(--font-display); font-size:48px; font-weight:280; letter-spacing:-1.5px;">${c.temp}°</div>
+      <div style="color:var(--muted); font-size:13px;">${activeCity} · ${c.cond}</div>
+    </div>
+    <div class="card">
+      <div class="hourly-grid">
+        ${['Now','+1h','+2h','+3h'].map((lbl, i) => `
+          <div class="hourly-item">
+            <span style="color:var(--muted)">${lbl}</span>
+            ${getIco(c.ico, 20)}
+            <strong>${c.hrs[i]}°</strong>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div class="card" style="font-size:13px;">
+      <div style="display:flex; justify-content:space-between; padding:4px 0;"><span style="color:var(--muted)">Humidity</span><strong>${c.hum}</strong></div>
+      <div style="display:flex; justify-content:space-between; padding:4px 0;"><span style="color:var(--muted)">Wind</span><strong>${c.wind}</strong></div>
+      <div style="display:flex; justify-content:space-between; padding:4px 0;"><span style="color:var(--muted)">UV</span><strong>${c.uv}</strong></div>
+    </div>
+  `;
+}
+
+/* --- 6. Music (Procedural Web Audio Ambient Player) --- */
+const TRACKS = [
+  { name: 'Stillness',  sub: 'Warm Pad · Fmaj7',  freqs: [174.61, 220.00, 261.63, 329.63] },
+  { name: 'Night Rain', sub: 'Soft Filter · Drift', freqs: [130.81, 196.00, 246.94, 293.66] },
+  { name: 'Deep Focus', sub: 'Fifth Drone · C',    freqs: [130.81, 196.00, 261.63] }
+];
+let musicState = { idx: 0, playing: false, nodes: [], master: null };
+
+function toggleMusicPlay(forceIdx = null) {
+  if (forceIdx !== null && forceIdx !== musicState.idx) {
+    stopMusicEngine();
+    musicState.idx = forceIdx;
+    musicState.playing = false;
+  }
+
+  if (musicState.playing) {
+    stopMusicEngine();
+    musicState.playing = false;
+  } else {
+    startMusicEngine(TRACKS[musicState.idx].freqs);
+    musicState.playing = true;
+  }
+
+  const isl = document.getElementById('island');
+  isl.classList.toggle('playing', musicState.playing);
+  isl.classList.toggle('expanded', musicState.playing || inCall);
+
+  if (activeApp === 'music') renderMusic(document.getElementById('appBody'));
+}
+
+function startMusicEngine(freqs) {
+  try {
+    const ctx = getAudio();
+    const master = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 620;
+    master.gain.setValueAtTime(0.0001, ctx.currentTime);
+    master.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 1.2);
+    filter.connect(master);
+    master.connect(ctx.destination);
+
+    const oscs = freqs.map((f, i) => {
+      const o = ctx.createOscillator();
+      o.type = i % 2 === 0 ? 'sine' : 'triangle';
+      o.frequency.value = f;
+      o.detune.value = (i - 1) * 4;
+      o.connect(filter);
+      o.start();
+      return o;
+    });
+
+    musicState.master = master;
+    musicState.nodes = oscs;
+  } catch {}
+}
+
+function stopMusicEngine() {
+  try {
+    const ctx = getAudio();
+    if (musicState.master) {
+      musicState.master.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.35);
+    }
+    const oldNodes = musicState.nodes;
+    setTimeout(() => oldNodes.forEach(o => { try { o.stop(); } catch {} }), 380);
+  } catch {}
+  musicState.nodes = [];
+}
+
+function renderMusic(body) {
+  const tr = TRACKS[musicState.idx];
+  body.innerHTML = `
+    <div class="card" style="text-align:center; padding:24px 16px;">
+      <div class="icon ico-music" style="margin:0 auto 14px; width:64px; height:64px; border-radius:20px;">
+        ${SVG.appMusic}
+      </div>
+      <div style="font-size:18px; font-weight:600;">${tr.name}</div>
+      <div style="font-size:12px; color:var(--muted); margin:4px 0 18px;">${tr.sub}</div>
+      <button class="action" style="width:52px; height:52px; border-radius:50%; padding:0;" onclick="toggleMusicPlay()">
+        ${musicState.playing ? SVG.pause : SVG.play}
+      </button>
+    </div>
+    ${TRACKS.map((t, i) => `
+      <div class="track-row ${musicState.idx === i ? 'active' : ''}" onclick="toggleMusicPlay(${i})">
+        <div>
+          <div style="font-size:13.5px; font-weight:600;">${t.name}</div>
+          <div style="font-size:11.5px; color:var(--muted);">${t.sub}</div>
+        </div>
+        <span style="color:var(--accent);">${musicState.idx === i && musicState.playing ? SVG.volumeOn : SVG.play}</span>
+      </div>
+    `).join('')}
+  `;
+}
+
+/* --- 7. Focus (Breathing Halo) --- */
+let breathTimer = null, breathActive = false;
+
+function renderFocus(body) {
+  body.innerHTML = `
+    <div class="card" style="text-align:center; padding:18px;">
+      <div class="breath-stage">
+        <div class="breath-ring" id="breathRing">Ready</div>
+      </div>
+      <button class="action" onclick="toggleBreathing()">${breathActive ? 'Stop' : 'Begin'}</button>
+    </div>
+  `;
+}
+
+function toggleBreathing() {
+  if (breathActive) {
+    stopBreathing();
+    renderFocus(document.getElementById('appBody'));
+    return;
+  }
+  breathActive = true;
+  renderFocus(document.getElementById('appBody'));
+
+  const cycle = () => {
+    const ring = document.getElementById('breathRing');
+    if (!ring || !breathActive) return;
+    ring.textContent = 'Inhale';
+    ring.className = 'breath-ring inhale';
+    breathTimer = setTimeout(() => {
+      if (!breathActive) return;
+      ring.textContent = 'Hold';
+      ring.className = 'breath-ring hold';
+      breathTimer = setTimeout(() => {
+        if (!breathActive) return;
+        ring.textContent = 'Exhale';
+        ring.className = 'breath-ring exhale';
+        breathTimer = setTimeout(cycle, 4000);
+      }, 2000);
+    }, 4000);
+  };
+  setTimeout(cycle, 60);
+}
+
+function stopBreathing() {
+  breathActive = false;
+  clearTimeout(breathTimer);
+}
+
+/* --- 8. Sketch (Drawing Canvas + Save to Gallery) --- */
+let sketchColor = '#f5f7fa';
+
+function renderSketch(body) {
+  const colors = ['#f5f7fa', '#b7f36b', '#38bdf8', '#fb7185'];
+  body.innerHTML = `
+    <div class="card" style="padding:10px;">
+      <canvas id="sketchCanvas" class="sketch-canvas"></canvas>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+        <div class="row">
+          ${colors.map(c => `
+            <button class="swatch" style="width:24px; height:24px; background:${c}; border-color:${sketchColor===c ? '#fff' : 'rgba(255,255,255,0.2)'}" onclick="sketchColor='${c}'; renderSketchColorRing(this)"></button>
+          `).join('')}
+        </div>
+        <div class="row">
+          <button class="action secondary" style="padding:7px 11px; font-size:12px;" onclick="clearSketch()">Clear</button>
+          <button class="action" style="padding:7px 11px; font-size:12px;" onclick="saveSketch()">${SVG.save}<span>Save</span></button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const canvas = document.getElementById('sketchCanvas');
+  const rect = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.max(300, rect.width) * dpr;
+  canvas.height = 310 * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = 3;
+
+  let drawing = false;
+  const pos = e => {
+    const r = canvas.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  };
+
+  canvas.onpointerdown = e => {
+    drawing = true;
+    canvas.setPointerCapture(e.pointerId);
+    const p = pos(e);
+    ctx.strokeStyle = sketchColor;
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+  };
+  canvas.onpointermove = e => {
+    if (!drawing) return;
+    const p = pos(e);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+  };
+  canvas.onpointerup = () => { drawing = false; };
+}
+
+function renderSketchColorRing(btn) {
+  btn.parentElement.querySelectorAll('.swatch').forEach(s => s.style.borderColor = 'rgba(255,255,255,0.2)');
+  btn.style.borderColor = '#fff';
+}
+
+function clearSketch() {
+  const c = document.getElementById('sketchCanvas');
+  if (c) c.getContext('2d').clearRect(0, 0, c.width, c.height);
+}
+
+function saveSketch() {
+  const c = document.getElementById('sketchCanvas');
+  if (!c) return;
+  const list = JSON.parse(localStorage.getItem('skyos-sketches') || '[]');
+  list.unshift({ id: Date.now(), img: c.toDataURL('image/png') });
+  localStorage.setItem('skyos-sketches', JSON.stringify(list.slice(0, 8)));
+  showToast('Saved to Gallery');
+}
+
+/* --- 9. Gallery --- */
+function renderGallery(body) {
+  const sketches = JSON.parse(localStorage.getItem('skyos-sketches') || '[]');
+  body.innerHTML = `
     <div class="gallery-grid">
       ${WALLPAPERS.map((w, i) => `
         <div class="photo-tile" style="background:${w.bg}" onclick="applyWallpaper(${i}); renderGallery(document.getElementById('appBody'));">
@@ -1371,35 +1911,46 @@ function renderGallery(body) {
           <span>${currentWallIdx === i ? SVG.check : ''}</span>
         </div>
       `).join('')}
+      ${sketches.map(s => `
+        <div class="photo-tile" style="background:#0b0e14 url(${s.img}) center/cover no-repeat;">
+          <span style="color:var(--muted);">Sketch</span>
+          <button class="icon-btn" style="width:26px; height:26px;" onclick="deleteSketch(${s.id})">${SVG.trash}</button>
+        </div>
+      `).join('')}
     </div>
   `;
+}
+
+function deleteSketch(id) {
+  const next = JSON.parse(localStorage.getItem('skyos-sketches') || '[]').filter(s => s.id !== id);
+  localStorage.setItem('skyos-sketches', JSON.stringify(next));
+  renderGallery(document.getElementById('appBody'));
 }
 
 function applyWallpaper(index) {
   currentWallIdx = index;
   localStorage.setItem('skyos-wallpaper', index);
   document.documentElement.style.setProperty('--wallpaper', WALLPAPERS[index].bg);
-  showToast(`Wallpaper: ${WALLPAPERS[index].name}`);
+  showToast(WALLPAPERS[index].name);
 }
 
-/* --- 4. Browser App --- */
+/* --- 10. Browser --- */
 function renderBrowser(body) {
   body.innerHTML = `
     <div class="card">
       <div class="row">
-        <input id="webAddress" placeholder="wikipedia.org" style="margin-top:0;">
-        <button class="action" style="margin-top:0;" onclick="loadWeb(true)">Go</button>
+        <input id="webAddress" placeholder="example.com">
+        <button class="action" onclick="loadWeb(true)">Go</button>
       </div>
-      <div class="row" style="margin-top:10px; flex-wrap:wrap;">
-        <button class="action secondary" style="margin:0; padding:6px 11px; font-size:12px;" onclick="quickSite('https://en.m.wikipedia.org')">Wikipedia</button>
-        <button class="action secondary" style="margin:0; padding:6px 11px; font-size:12px;" onclick="quickSite('https://example.com')">Example.com</button>
-        <button class="action secondary" style="margin:0; padding:6px 11px; font-size:12px;" onclick="loadWeb(false)"><span>Open Tab</span>${SVG.external}</button>
+      <div class="row" style="margin-top:10px;">
+        <button class="action secondary" style="padding:6px 11px; font-size:12px;" onclick="quickSite('https://en.m.wikipedia.org')">Wiki</button>
+        <button class="action secondary" style="padding:6px 11px; font-size:12px;" onclick="quickSite('https://example.com')">Example</button>
+        <button class="action secondary" style="padding:6px 11px; font-size:12px;" onclick="loadWeb(false)">${SVG.external}</button>
       </div>
     </div>
-    <div class="card" style="padding:0; overflow:hidden; height:360px; display:flex; flex-direction:column;">
-      <iframe id="webFrame" title="Sky Browser" style="border:0; width:100%; height:100%; background:#fff;" src="https://example.com"></iframe>
+    <div class="card" style="padding:0; overflow:hidden; height:360px;">
+      <iframe id="webFrame" title="Browser" style="border:0; width:100%; height:100%; background:#fff;" src="https://example.com"></iframe>
     </div>
-    <p style="font-size:11px; color:var(--muted); margin:6px 4px;">Some external websites block embedded frames. Use "Open Tab" if a page remains blank.</p>
   `;
 }
 
@@ -1412,67 +1963,78 @@ function loadWeb(inFrame) {
   let url = document.getElementById('webAddress').value.trim();
   if (!url) return;
   if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-  if (inFrame) {
-    document.getElementById('webFrame').src = url;
-  } else {
-    window.open(url, '_blank', 'noopener');
-  }
+  if (inFrame) document.getElementById('webFrame').src = url;
+  else window.open(url, '_blank', 'noopener');
 }
 
-/* --- 5. Phone App --- */
-let dialDigits = '';
+/* --- 11. Phone --- */
+let dialDigits = '', inCall = false, callMuted = false;
 const DTMF = { '1':697,'2':730,'3':770,'4':800,'5':852,'6':890,'7':941,'8':980,'9':1020,'*':580,'0':640,'#':710 };
 
 function renderPhone(body) {
-  document.getElementById('island').classList.remove('calling');
+  endCallState();
   const keys = ['1','2','3','4','5','6','7','8','9','*','0','#'];
   body.innerHTML = `
     <div class="card">
-      <div class="dial-num" id="dialNum">${dialDigits || 'Enter number'}</div>
+      <div class="dial-num" id="dialNum">${dialDigits || '—'}</div>
       <div class="dial-grid">
         ${keys.map(k => `<button onclick="dialPress('${k}')">${k}</button>`).join('')}
       </div>
       <div class="row" style="margin-top:14px;">
-        <button class="action" style="flex:1; margin:0;" onclick="startCall()">${SVG.phoneCall}<span>Call</span></button>
-        <button class="action secondary" style="margin:0; padding:10px 14px;" onclick="dialBack()">${SVG.backspace}</button>
+        <button class="action" style="flex:1;" onclick="startCall()">${SVG.phoneCall}<span>Call</span></button>
+        <button class="action secondary" style="padding:10px 14px;" onclick="dialBack()">${SVG.backspace}</button>
       </div>
     </div>
   `;
 }
 
 function dialPress(k) {
-  playTone(DTMF[k] || 600, 0.08);
-  if (dialDigits.length < 15) dialDigits += k;
+  playTone(DTMF[k] || 600, 0.07);
+  if (dialDigits.length < 14) dialDigits += k;
   document.getElementById('dialNum').textContent = dialDigits;
 }
 
 function dialBack() {
   dialDigits = dialDigits.slice(0, -1);
-  document.getElementById('dialNum').textContent = dialDigits || 'Enter number';
+  document.getElementById('dialNum').textContent = dialDigits || '—';
 }
 
 function startCall() {
-  if (!dialDigits) return showToast('Enter a number first');
-  document.getElementById('island').classList.add('calling');
-  const body = document.getElementById('appBody');
-  const calling = dialDigits;
-  body.innerHTML = `
+  if (!dialDigits) return;
+  inCall = true; callMuted = false;
+  const isl = document.getElementById('island');
+  isl.classList.add('calling', 'expanded');
+  renderCallScreen();
+}
+
+function renderCallScreen() {
+  document.getElementById('appBody').innerHTML = `
     <div class="card" style="text-align:center; padding:38px 16px;">
-      <div style="width:74px; height:74px; margin:0 auto 14px; border-radius:50%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.14); display:grid; place-items:center;">
+      <div style="width:72px; height:72px; margin:0 auto 14px; border-radius:50%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.14); display:grid; place-items:center;">
         ${SVG.user}
       </div>
-      <h3 style="margin:0 0 6px; font-weight:600; font-size:20px;">${calling}</h3>
-      <p style="color:var(--accent); font-size:13px; margin:0 0 30px;">Calling via SkyNet...</p>
-      <button class="action danger" onclick="renderPhone(document.getElementById('appBody'))">End Call</button>
+      <div style="font-size:21px; font-weight:600; margin-bottom:4px;">${dialDigits}</div>
+      <div style="color:var(--accent); font-size:12.5px; margin-bottom:28px;">Calling</div>
+      <div class="row" style="justify-content:center;">
+        <button class="action secondary" onclick="callMuted=!callMuted; renderCallScreen();" style="${callMuted ? 'background:var(--accent); color:#0b0e12;' : ''}">${SVG.micOff}</button>
+        <button class="action danger" onclick="renderPhone(document.getElementById('appBody'))">End</button>
+      </div>
     </div>
   `;
 }
 
-/* --- 6. Messages App --- */
+function endCallState() {
+  inCall = false;
+  const isl = document.getElementById('island');
+  isl.classList.remove('calling');
+  isl.classList.toggle('expanded', musicState.playing);
+}
+
+/* --- 12. Messages --- */
 function getMessages() {
   try {
     return JSON.parse(localStorage.getItem('skyos-msgs')) || [
-      { from: 'them', text: 'Hey! Welcome to SkyOS Messages. How does the updated UI look?' }
+      { from: 'them', text: 'SkyOS is ready.' }
     ];
   } catch { return []; }
 }
@@ -1481,11 +2043,11 @@ function renderMessages(body) {
   const msgs = getMessages();
   body.innerHTML = `
     <div class="card">
-      <div style="font-size:12px; font-weight:600; color:var(--muted); margin-bottom:10px;">Sky Assistant</div>
+      <div style="font-size:12px; font-weight:600; color:var(--muted); margin-bottom:10px;">Sky</div>
       <div class="chat-box" id="chatBox"></div>
       <div class="row">
-        <input id="chatInput" placeholder="Message..." style="margin-top:0;" onkeydown="if(event.key==='Enter') sendMsg()">
-        <button class="action" style="margin-top:0;" onclick="sendMsg()" aria-label="Send">${SVG.send}</button>
+        <input id="chatInput" placeholder="Message..." onkeydown="if(event.key==='Enter') sendMsg()">
+        <button class="action" onclick="sendMsg()" aria-label="Send">${SVG.send}</button>
       </div>
     </div>
   `;
@@ -1507,104 +2069,39 @@ function sendMsg() {
 
   const msgs = getMessages();
   msgs.push({ from: 'me', text });
-
-  const replies = [
-    'Got it. Everything on SkyOS is running smoothly.',
-    'Noted. You can customize your accent color anytime in Settings.',
-    'Try switching wallpapers in Gallery to match your accent.',
-    'Message received loud and clear.'
-  ];
+  const replies = ['Noted.', 'Sounds good.', 'Done.', 'Got it.'];
   const reply = text.toLowerCase().includes('time')
-    ? `It is currently ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}.`
+    ? new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     : replies[msgs.length % replies.length];
-
   msgs.push({ from: 'them', text: reply });
   localStorage.setItem('skyos-msgs', JSON.stringify(msgs));
   renderMessages(document.getElementById('appBody'));
 }
 
-/* --- 7. Weather & Timer Apps --- */
-function renderWeather(body) {
-  body.innerHTML = `
-    <div class="card" style="text-align:center; padding:26px 16px;">
-      <div style="display:inline-flex; margin-bottom:6px;">${SVG.partlyCloudy(58)}</div>
-      <div style="font-family:var(--font-display); font-size:48px; font-weight:300; letter-spacing:-1.5px;">18°C</div>
-      <div style="color:var(--muted); font-size:13px; margin-top:2px;">Partly Cloudy • Sky Valley</div>
-    </div>
-    <div class="card">
-      <div class="hourly-grid">
-        <div class="hourly-item"><span style="color:var(--muted)">Now</span>${SVG.partlyCloudy(22)}<strong>18°</strong></div>
-        <div class="hourly-item"><span style="color:var(--muted)">21:00</span>${SVG.cloud(22)}<strong>16°</strong></div>
-        <div class="hourly-item"><span style="color:var(--muted)">22:00</span>${SVG.cloud(22)}<strong>15°</strong></div>
-        <div class="hourly-item"><span style="color:var(--muted)">23:00</span>${SVG.partlyCloudy(22)}<strong>14°</strong></div>
-      </div>
-    </div>
-    <div class="card" style="font-size:13px;">
-      <div style="display:flex; justify-content:space-between; padding:5px 0;">
-        <span style="color:var(--muted)">Humidity</span><strong>54%</strong>
-      </div>
-      <div style="display:flex; justify-content:space-between; padding:5px 0;">
-        <span style="color:var(--muted)">Wind</span><strong>11 km/h</strong>
-      </div>
-      <div style="display:flex; justify-content:space-between; padding:5px 0;">
-        <span style="color:var(--muted)">UV Index</span><strong>3 (Moderate)</strong>
-      </div>
-    </div>
-  `;
-}
-
-function renderTimer(body) {
-  const fmt = s => `${String(Math.floor(s / 60)).padStart(2,'0')}:${String(s % 60).padStart(2,'0')}`;
-  body.innerHTML = `
-    <div class="card" style="text-align:center; padding:28px 16px;">
-      <div id="timerDisp" style="font-family:var(--font-display); font-size:52px; font-weight:300; font-variant-numeric:tabular-nums; margin-bottom:16px;">${fmt(timerSeconds)}</div>
-      <div class="row" style="justify-content:center;">
-        <button class="action" onclick="startStopwatch()">Start</button>
-        <button class="action secondary" onclick="stopStopwatch()">Pause</button>
-        <button class="action secondary" onclick="resetStopwatch()">Reset</button>
-      </div>
-    </div>
-  `;
-}
-function startStopwatch() {
-  if (timerInterval) return;
-  timerInterval = setInterval(() => {
-    timerSeconds++;
-    const d = document.getElementById('timerDisp');
-    if (d) d.textContent = `${String(Math.floor(timerSeconds/60)).padStart(2,'0')}:${String(timerSeconds%60).padStart(2,'0')}`;
-  }, 1000);
-}
-function stopStopwatch() { clearInterval(timerInterval); timerInterval = null; }
-function resetStopwatch() { stopStopwatch(); timerSeconds = 0; const d = document.getElementById('timerDisp'); if (d) d.textContent = '00:00'; }
-
-/* --- 8. Settings & About --- */
+/* --- 13. Settings & About --- */
 function renderSettings(body) {
   const currentAccent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
   const colors = ['#b7f36b', '#6bc5f3', '#f39c6b', '#d18aff', '#ff6b8b', '#ffd86b'];
 
   body.innerHTML = `
     <div class="card">
-      <strong style="font-size:14px;">Accent Colour</strong>
+      <strong style="font-size:13.5px;">Accent</strong>
       <div class="swatches">
         ${colors.map(c => `<button class="swatch" style="background:${c}" onclick="setAccent('${c}')"></button>`).join('')}
-      </div>
-      <div class="row" style="margin-top:12px;">
-        <span style="font-size:13px; color:var(--muted);">Custom:</span>
-        <input type="color" value="${currentAccent}" onchange="setAccent(this.value)" style="background:none; border:0; height:32px; cursor:pointer;">
+        <input type="color" value="${currentAccent}" onchange="setAccent(this.value)" style="width:34px; height:34px; border:0; background:none; padding:0; cursor:pointer;">
       </div>
     </div>
 
     <div class="card">
-      <strong style="font-size:14px;">Wallpaper</strong>
+      <strong style="font-size:13.5px;">Wallpaper</strong>
       <div class="swatches">
         ${WALLPAPERS.map((w, i) => `<button class="swatch" title="${w.name}" style="background:${w.bg}" onclick="applyWallpaper(${i})"></button>`).join('')}
       </div>
     </div>
 
-    <div class="card">
-      <strong style="font-size:14px;">System</strong>
-      <p style="font-size:12px; color:var(--muted); margin:6px 0 10px;">Clear saved notes, messages, and preferences.</p>
-      <button class="action danger" style="margin-top:0;" onclick="resetOS()">Factory Reset SkyOS</button>
+    <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+      <strong style="font-size:13.5px;">Reset</strong>
+      <button class="action danger" style="padding:8px 13px; font-size:12px;" onclick="localStorage.clear(); location.reload();">Reset</button>
     </div>
   `;
 }
@@ -1615,43 +2112,28 @@ function setAccent(color) {
   showToast('Accent updated');
 }
 
-function resetOS() {
-  localStorage.clear();
-  location.reload();
-}
-
 function renderAbout(body) {
   body.innerHTML = `
     <div class="card" style="text-align:center; padding:26px 16px;">
-      <div class="icon ico-about" style="margin:0 auto 12px; width:62px; height:62px; border-radius:20px;">
+      <div class="icon ico-about" style="margin:0 auto 12px; width:60px; height:60px; border-radius:20px;">
         ${SVG.appAbout}
       </div>
-      <h2 style="margin:4px 0;">SkyOS 1.0</h2>
-      <p style="margin:0; font-size:12px; color:var(--muted);">Lightweight Web Operating System</p>
+      <div style="font-size:19px; font-weight:600;">SkyOS 2.0</div>
+      <div style="font-size:12px; color:var(--muted); margin-top:2px;">Minimal Web OS</div>
     </div>
     <div class="card" style="font-size:13px;">
-      <div style="display:flex; justify-content:space-between; padding:6px 0;">
-        <span style="color:var(--muted);">Typography</span><span>Google Sans</span>
-      </div>
-      <div style="display:flex; justify-content:space-between; padding:6px 0;">
-        <span style="color:var(--muted);">Viewport</span><span>${window.innerWidth} × ${window.innerHeight}</span>
-      </div>
-      <div style="display:flex; justify-content:space-between; padding:6px 0;">
-        <span style="color:var(--muted);">Platform</span><span>${navigator.platform || 'Web'}</span>
-      </div>
+      <div style="display:flex; justify-content:space-between; padding:6px 0;"><span style="color:var(--muted)">Font</span><span>Google Sans</span></div>
+      <div style="display:flex; justify-content:space-between; padding:6px 0;"><span style="color:var(--muted)">Display</span><span>${window.innerWidth} × ${window.innerHeight}</span></div>
+      <div style="display:flex; justify-content:space-between; padding:6px 0;"><span style="color:var(--muted)">Apps</span><span>${HOME_APPS.length + 2}</span></div>
     </div>
   `;
 }
 
-/* Keyboard support for Calculator */
 document.addEventListener('keydown', e => {
   if (activeApp !== 'calculator') return;
   const map = { '/':'÷', '*':'×', '-':'−', '+':'+', 'Enter':'=', 'Backspace':'⌫', 'Escape':'C' };
   if (/^[0-9.()]$/.test(e.key)) calcPress(e.key);
-  else if (map[e.key]) {
-    e.preventDefault();
-    calcPress(map[e.key]);
-  }
+  else if (map[e.key]) { e.preventDefault(); calcPress(map[e.key]); }
 });
 
 initSkyOS();
