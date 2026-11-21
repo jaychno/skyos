@@ -1,0 +1,71 @@
+/* SkyOS 5 — setup assistant */
+#setup{position:absolute;inset:0;z-index:88;display:flex;align-items:center;justify-content:center;padding:28px 24px;background:rgba(8,10,20,.58);-webkit-backdrop-filter:blur(40px) saturate(160%);backdrop-filter:blur(40px) saturate(160%);opacity:0;pointer-events:none;transition:opacity .4s;color:#fff;text-align:center}
+#setup.open{opacity:1;pointer-events:auto}
+.su-in{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;max-width:340px}
+.su-in.top{align-self:flex-start;margin-top:64px;height:calc(100% - 84px)}
+.su-in h1{font-size:30px;font-weight:700;letter-spacing:-.5px}
+.su-in p{font-size:15px;line-height:1.45;opacity:.85}
+.su-logo{width:84px;height:84px;border-radius:24px;display:flex;align-items:center;justify-content:center;color:#fff;background:linear-gradient(160deg,rgba(255,255,255,.28),rgba(255,255,255,.08));box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 12px 30px rgba(0,0,0,.3)}
+.su-logo svg{width:46px;height:46px}
+.su-logo.pin{color:#34c759}.su-logo.ok{color:#30d158}
+.su-act{display:flex;flex-direction:column;gap:10px;width:100%;margin-top:10px}
+.su-btn{padding:15px;border-radius:16px;font-size:16px;font-weight:600;background:rgba(255,255,255,.16);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.35);transition:transform .25s cubic-bezier(.3,1.5,.5,1)}
+.su-btn:active{transform:scale(.96)}
+.su-btn.primary{background:var(--accent,#0a84ff)}
+.su-btn.text{background:none;box-shadow:none;opacity:.85}
+.su-btn:disabled{opacity:.5}
+.su-note{font-size:13.5px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.12);width:100%;line-height:1.4}
+.su-note.err{background:rgba(255,69,58,.28)}
+.su-in-q{width:100%;padding:13px 16px;border-radius:14px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);color:#fff;font-size:16px}
+.su-in-q::placeholder{color:rgba(255,255,255,.6)}
+.su-list{width:100%;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;text-align:left;scrollbar-width:none;min-height:0}
+.su-res{padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.12);color:#fff;text-align:left}
+.su-res b{display:block;font-size:15px}.su-res small{opacity:.7;font-size:12.5px}
+
+/* profiles */
+.pf-av{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;color:#fff;font-weight:700;flex:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.45)}
+.pf-banner{background:rgba(255,159,10,.18);border:1px solid rgba(255,159,10,.5);color:var(--fg);border-radius:16px;padding:12px 14px;font-size:13.5px;line-height:1.4;margin-bottom:12px}
+.pf-msg{font-size:13px;padding:10px 12px;border-radius:12px;background:var(--card2);margin:0 0 12px;line-height:1.4}
+
+/* setup assistant 2 */
+.su-in{max-height:100%;overflow-y:auto;scrollbar-width:none}
+.su-in::-webkit-scrollbar{display:none}
+.su-dots{position:absolute;left:0;right:0;bottom:22px;display:flex;justify-content:center;gap:7px}
+.su-dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.3);transition:all .3s}
+.su-dots i.past{background:rgba(255,255,255,.65)}
+.su-dots i.on{background:#fff;width:20px;border-radius:4px}
+.su-res.sel{background:rgba(255,255,255,.26);box-shadow:inset 0 0 0 2px var(--accent,#0a84ff)}
+.su-opts{display:flex;gap:10px;width:100%}
+.su-opt{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 6px;border-radius:16px;background:rgba(255,255,255,.12);color:#fff;font-size:14px;font-weight:600}
+.su-opt.sel{box-shadow:inset 0 0 0 2px var(--accent,#0a84ff);background:rgba(255,255,255,.2)}
+.su-pv{width:54px;height:76px;border-radius:12px;border:1px solid rgba(255,255,255,.35);display:block}
+.su-pv.light{background:linear-gradient(#f2f4fa,#cfd6e6)}
+.su-pv.dark{background:linear-gradient(#262a38,#0b0d14)}
+.su-pv.auto{background:linear-gradient(100deg,#f2f4fa 50%,#0b0d14 50%)}
+.su-walls{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%}
+.su-wall{aspect-ratio:3/4;border-radius:12px;position:relative;overflow:hidden;color:#fff}
+.su-wall span{position:absolute;left:0;right:0;bottom:0;font-size:10px;font-weight:600;padding:10px 2px 4px;background:linear-gradient(transparent,rgba(0,0,0,.6));text-align:center}
+.su-wall.sel{outline:3px solid var(--accent,#0a84ff);outline-offset:2px}
+.su-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;border-radius:14px;background:rgba(255,255,255,.12);color:#fff;text-align:left;font-size:15px;width:100%}
+.su-swatches{display:flex;gap:12px;justify-content:center}
+.su-swatches button{width:34px;height:34px;border-radius:50%;position:relative}
+.su-swatches button.on::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2.5px solid #fff}
+.su-pad{width:100%;height:96px;border-radius:18px;border:1.5px dashed rgba(255,255,255,.5);background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:13px;opacity:.9;touch-action:none;user-select:none}
+.su-pad:focus-visible{outline:2px solid var(--accent,#0a84ff)}
+.su-task{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.1);font-size:13.5px;text-align:left}
+.su-task>span:nth-child(2){flex:1}
+.su-chk{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;color:transparent;flex:none}
+.su-chk svg{width:13px;height:13px}
+.su-task.ok .su-chk{background:#30d158;border-color:#30d158;color:#fff}
+.su-mini{font-size:12px;padding:5px 10px;border-radius:10px;background:rgba(255,255,255,.18);color:#fff;white-space:nowrap}
+.su-sum{width:100%;display:flex;flex-direction:column;gap:6px;text-align:left}
+.su-sum div{display:flex;justify-content:space-between;gap:12px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.1);font-size:14px}
+.su-sum span{opacity:.75}
+/* longer translations must wrap, never overflow */
+.item .sp,.item small,.cap,.group .v,.ctx-i,.cc-tile span,.lwid small,.su-btn,.su-opt,.su-row span,.tabbar span{overflow-wrap:anywhere;hyphens:auto}
+.item{min-width:0}
+.item .v{white-space:normal;text-align:right;max-width:55%}
+.tabbar button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}
+.cc-tile span{max-width:100%;text-align:center}
+.nav h1{overflow:hidden;text-overflow:ellipsis}
+:lang(ru) .item .sp,:lang(ja) .item .sp{line-height:1.3}
