@@ -533,9 +533,38 @@ body:not(.playing) .np .art{transform:scale(.88)}
 
 /* extras */
 .app.keepdark{--fg:#fff;--fg2:rgba(255,255,255,.62);--fg3:rgba(255,255,255,.35);--bg:#0a0c12;--card:rgba(255,255,255,.075);--card2:rgba(255,255,255,.12);--line:rgba(255,255,255,.1)}
-#screen.locked #home,#screen.locked #apps{visibility:hidden}
 #screen.locked #wall{transform:none;filter:none}
 body:not(.has-track) .lock-music{display:none}
 .scard:first-child{margin-left:auto}.scard:last-child{margin-right:auto}
 .ico svg{overflow:visible}
-#screen.locked #dots,#screen.locked #searchpill,#screen.locked #dock{display:none}
+
+/* ---- lock reveal: home / current app appear as you swipe ---- */
+#apps{transition:opacity .5s,transform .5s cubic-bezier(.2,.9,.25,1),filter .5s}
+#screen.locked #home,#screen.locked #apps{opacity:var(--lp,0);transform:scale(calc(.88 + .12*var(--lp,0)));filter:blur(calc((1 - var(--lp,0))*14px));pointer-events:none}
+#screen.locked.appopen #home{opacity:0}
+#screen.lockdrag #home,#screen.lockdrag #apps{transition:none}
+/* ---- liquid glass motion ---- */
+.bloom{position:absolute;border-radius:50%;z-index:74;pointer-events:none;
+  background:radial-gradient(circle,rgba(255,255,255,.38),rgba(255,255,255,.1) 52%,rgba(255,255,255,0) 72%);
+  -webkit-backdrop-filter:blur(7px) saturate(1.7) brightness(1.3);backdrop-filter:blur(7px) saturate(1.7) brightness(1.3);
+  border:1.5px solid rgba(255,255,255,.55);box-shadow:inset 0 0 22px rgba(255,255,255,.45),0 0 30px rgba(255,255,255,.25);
+  transform:scale(.3);opacity:0;animation:bloom .7s cubic-bezier(.2,.8,.3,1) forwards}
+@keyframes bloom{0%{transform:scale(.3);opacity:.95}60%{opacity:.5}100%{transform:scale(var(--s,7));opacity:0}}
+.app{filter:blur(12px) saturate(1.5)}
+.app.show{filter:none;transition:transform .45s cubic-bezier(.2,.9,.25,1),opacity .2s ease,border-radius .45s,filter .45s,visibility 0s}
+.app.show.nodrag{filter:none}
+.rp{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none;z-index:4}
+.rp i{position:absolute;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.6),rgba(255,255,255,.22) 40%,rgba(255,255,255,0) 70%);transform:scale(.05);opacity:1;animation:rp .7s cubic-bezier(.2,.8,.3,1) forwards}
+@keyframes rp{to{transform:scale(1);opacity:0}}
+#screen[data-theme=light] .app:not(.keepdark) .rp i{background:radial-gradient(circle,rgba(20,30,60,.25),rgba(20,30,60,.08) 45%,rgba(0,0,0,0) 70%)}
+button.glass,.widget,.cc-tile,.minip,.notif,.nav .btn,.tabbar button,.circ,.pill,.chip,.keys button,.trow,.plcard{transition:transform .3s cubic-bezier(.3,1.6,.5,1),background .3s,filter .2s,opacity .3s}
+button.glass:active,.widget:active,.cc-tile:active,.minip:active,.notif:active,.nav .btn:active,.circ:active,.pill:active,.chip:active,.keys button:active,.plcard:active{transform:scale(.94)}
+.trow:active{transform:scale(.98)}
+.keys button:active{background:linear-gradient(135deg,rgba(255,255,255,.55),rgba(255,255,255,.25));filter:brightness(1.2)}
+#pindots i.on{animation:dotpop .4s cubic-bezier(.3,1.7,.5,1);box-shadow:0 0 12px rgba(255,255,255,.9)}
+@keyframes dotpop{0%{transform:scale(.4)}60%{transform:scale(1.5)}100%{transform:scale(1.1)}}
+#pindots.ok i{background:#30d158;border-color:#30d158;box-shadow:0 0 16px #30d158}
+.np{filter:blur(14px);opacity:0;transition:transform .5s cubic-bezier(.2,.9,.25,1),filter .5s,opacity .4s}
+.np.open{filter:none;opacity:1}
+.tabbar button.on{animation:tabpop .45s cubic-bezier(.3,1.6,.5,1)}
+@keyframes tabpop{0%{transform:scale(.85)}100%{transform:scale(1)}}
