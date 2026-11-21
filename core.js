@@ -578,10 +578,31 @@ function initVolumeButtons() {
   $('#btnSilent').addEventListener('click', () => { if (!Sys.on) return; if (!Sys.screen) { wake(); return; } setSilent(!S.silent); });
 }
 
+/* ---------- liquid glass effects ---------- */
+const setLP = v => screenEl().style.setProperty('--lp', v);
+function bloom(x, y, scale = 7, size = 120) {
+  const b = document.createElement('div'); b.className = 'bloom';
+  b.style.cssText = `left:${x}px;top:${y}px;width:${size}px;height:${size}px;margin:${-size / 2}px 0 0 ${-size / 2}px;--s:${scale}`;
+  screenEl().appendChild(b); setTimeout(() => b.remove(), 800);
+}
+function screenSize() { const r = screenEl().getBoundingClientRect(); return [r.width / K, r.height / K]; }
+const RIPPLE_SEL = '.glass:not(.sheet):not(#banner):not(.wx-card):not(.wx-tile):not(#sfield),.trow,.item,.pill,.chip,.tile .tb,.circ,.plcard,.note-i,.ff-r,.keys button,.btn,.ico,.seg button,.tabbar button,.calc .keys2 button,.round,.cal-g button,.nw-hero,.nw-item,.wx-res,.sres-i';
+function initRipples() {
+  screenEl().addEventListener('pointerdown', e => {
+    if (e.button > 0 || !Sys.on) return;
+    const host = e.target.closest && e.target.closest(RIPPLE_SEL); if (!host || host.closest('#pwr') || host.matches('.item.col')) return;
+    if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
+    const r = host.getBoundingClientRect(), x = (e.clientX - r.left) / K, y = (e.clientY - r.top) / K;
+    const c = document.createElement('span'); c.className = 'rp'; const d = document.createElement('i');
+    const sz = Math.max(r.width, r.height) / K * 2.2 + 20; d.style.cssText = `width:${sz}px;height:${sz}px;left:${x - sz / 2}px;top:${y - sz / 2}px`;
+    c.appendChild(d); host.appendChild(c); setTimeout(() => c.remove(), 750);
+  }, true);
+}
+
 /* ---------- lock screen ---------- */
 let pinBuf = '';
 function lockNow(instant) {
-  Sys.locked = true; const l = $('#lock'); pinBuf = ''; updatePinDots(); $('#pinpad').classList.remove('show');
+  Sys.locked = true; setLP(0); screenEl().classList.remove('lockdrag'); $('#pindots').classList.remove('ok'); const l = $('#lock'); pinBuf = ''; updatePinDots(); $('#pinpad').classList.remove('show');
   l.classList.remove('drag'); l.style.transform = ''; l.classList.remove('gone');
   screenEl().classList.add('locked'); closeSheets(true); closeOverlays(true); hideBanner();
   renderLockBody(); updateSB(); resetIdle(); document.activeElement && document.activeElement.blur && document.activeElement.blur();
@@ -592,7 +613,8 @@ function attemptUnlock() {
   else unlock();
 }
 function unlock() {
-  Sys.locked = false; screenEl().classList.remove('locked'); $('#pinpad').classList.remove('show'); const l = $('#lock'); l.classList.remove('drag'); l.style.transform = ''; l.classList.add('gone');
+  const [W, H] = screenSize(); bloom(W / 2, H - 20, 16, 120);
+  Sys.locked = false; screenEl().classList.remove('lockdrag'); setLP(1); screenEl().classList.remove('locked'); $('#pinpad').classList.remove('show'); const l = $('#lock'); l.classList.remove('drag'); l.style.transform = ''; l.classList.add('gone');
   updateSB(); resetIdle(); tone(740, .06, .08, 'triangle');
 }
 function updatePinDots() { $$('#pindots i').forEach((d, i) => d.classList.toggle('on', i < pinBuf.length)); }
@@ -601,7 +623,7 @@ function pinKey(k) {
   if (k === 'cancel') { $('#pinpad').classList.remove('show'); pinBuf = ''; updatePinDots(); return; }
   if (pinBuf.length >= 4) return; pinBuf += k; updatePinDots(); tone(500 + pinBuf.length * 60, .04, .08, 'triangle');
   if (pinBuf.length === 4) {
-    if (pinBuf === S.pin) setTimeout(unlock, 140);
+    if (pinBuf === S.pin) { $('#pindots').classList.add('ok'); const [W, H] = screenSize(); bloom(W / 2, H / 2 - 40, 9, 120); setTimeout(unlock, 260); }
     else { const d = $('#pindots'); d.classList.add('shake'); $('#pinPrompt').textContent = 'Wrong passcode — try again'; tone(180, .25, .15, 'sawtooth'); setTimeout(() => { d.classList.remove('shake'); pinBuf = ''; updatePinDots(); $('#pinPrompt').textContent = 'Enter Passcode'; }, 500); }
   }
 }
@@ -613,9 +635,9 @@ function initLock() {
   const l = $('#lock');
   drag(l, {
     axis: 'y', filter: e => !e.target.closest('#pinpad'),
-    start: () => l.classList.add('drag'),
-    move: ({ dy }) => { l.style.transform = `translateY(${Math.min(0, dy)}px)`; l.style.opacity = String(1 - clamp(-dy / 500, 0, .6)); },
-    end: ({ dy, vy }) => { l.classList.remove('drag'); l.style.opacity = ''; if (dy < -120 || vy < -.55) { l.style.transform = ''; attemptUnlock(); } else l.style.transform = ''; }
+    start: () => { l.classList.add('drag'); screenEl().classList.add('lockdrag'); },
+    move: ({ dy }) => { l.style.transform = `translateY(${Math.min(0, dy)}px)`; l.style.opacity = String(1 - clamp(-dy / 500, 0, .6)); setLP(clamp(-dy / 320, 0, 1)); },
+    end: ({ dy, vy }) => { l.classList.remove('drag'); l.style.opacity = ''; l.style.transform = ''; screenEl().classList.remove('lockdrag'); if (dy < -120 || vy < -.55) attemptUnlock(); if (Sys.locked) setLP(0); }
   });
   $('#lockhint').addEventListener('click', attemptUnlock);
   l.addEventListener('click', e => { const n = e.target.closest('[data-notif]'); if (n) { const x = Notifs.find(z => z.id === n.dataset.notif); if (x) { attemptUnlock(); if (!S.requirePin) setTimeout(() => openNotif(x), 120); } } });
@@ -697,7 +719,7 @@ function openApp(id, arg, from) {
   const sr = screenEl().getBoundingClientRect();
   let ox = sr.width / K / 2, oy = sr.height / K * .8;
   if (from && from.getBoundingClientRect) { const r = from.getBoundingClientRect(); ox = (r.left + r.width / 2 - sr.left) / K; oy = (r.top + r.height / 2 - sr.top) / K; }
-  el.style.transformOrigin = `${ox}px ${oy}px`;
+  el.style.transformOrigin = `${ox}px ${oy}px`; bloom(ox, oy, 7, 110);
   el.style.transform = ''; el.classList.remove('nodrag');
   Sys.recents = Sys.recents.filter(x => x !== id); Sys.recents.unshift(id);
   void el.offsetWidth;
@@ -710,6 +732,7 @@ function closeApp(instant) {
   if (!Sys.cur) return;
   const el = curEl(), a = APPS[Sys.cur];
   if (instant) { el.classList.add('nodrag'); setTimeout(() => el.classList.remove('nodrag'), 60); }
+  if (!instant) { const o = (el.style.transformOrigin || '').split(' ').map(parseFloat); if (o.length === 2 && !isNaN(o[0])) bloom(o[0], o[1], 5, 90); }
   el.style.transform = ''; el.classList.remove('show'); Sys.cur = null; screenEl().classList.remove('appopen');
   if (a.onClose) a.onClose(); updateSB();
   if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
@@ -762,15 +785,15 @@ function initZones() {
     axis: 'y', th: 6, capture: true,
     start: () => {
       if (Sys.locked) mode = 'lock'; else if (anySheetOpen() || anyOverlayOpen()) mode = 'close'; else if (Sys.cur) { mode = 'app'; const el = curEl(); el.classList.add('nodrag'); } else mode = 'home';
-      if (mode === 'lock') $('#lock').classList.add('drag');
+      if (mode === 'lock') { $('#lock').classList.add('drag'); screenEl().classList.add('lockdrag'); }
     },
     move: ({ dy }) => {
       if (mode === 'app') { const el = curEl(); const p = clamp(-dy, 0, 600); const s = 1 - Math.min(.4, p / 800); el.style.transform = `translateY(${-p * .5}px) scale(${s})`; el.style.borderRadius = Math.min(50, p / 4) + 'px'; }
-      else if (mode === 'lock') { const l = $('#lock'); l.style.transform = `translateY(${Math.min(0, dy)}px)`; l.style.opacity = String(1 - clamp(-dy / 500, 0, .6)); }
+      else if (mode === 'lock') { const l = $('#lock'); l.style.transform = `translateY(${Math.min(0, dy)}px)`; l.style.opacity = String(1 - clamp(-dy / 500, 0, .6)); setLP(clamp(-dy / 320, 0, 1)); }
     },
     end: ({ dy, vy }) => {
       if (mode === 'app') { const el = curEl(); el.classList.remove('nodrag'); el.style.borderRadius = ''; if (dy < -60 || vy < -.45) { if (dy < -190 && Math.abs(vy) < .4) { el.style.transform = ''; el.classList.remove('show'); const id = Sys.cur; Sys.cur = null; screenEl().classList.remove('appopen'); const ap = APPS[id]; if (ap.onClose) ap.onClose(); openSwitcher(); } else closeApp(); } else el.style.transform = ''; }
-      else if (mode === 'lock') { const l = $('#lock'); l.classList.remove('drag'); l.style.opacity = ''; l.style.transform = ''; if (dy < -100 || vy < -.5) attemptUnlock(); }
+      else if (mode === 'lock') { const l = $('#lock'); l.classList.remove('drag'); l.style.opacity = ''; l.style.transform = ''; screenEl().classList.remove('lockdrag'); if (dy < -100 || vy < -.5) attemptUnlock(); if (Sys.locked) setLP(0); }
       else if (mode === 'close') { if (dy < -40 || vy < -.3) { closeSheets(); closeOverlays(); } }
       else if (mode === 'home') { if (dy < -190 && Math.abs(vy) < .4) openSwitcher(); }
       mode = '';
@@ -922,7 +945,7 @@ const SkyOS = {
     player = $('#player');
     fit(); Music.init(); Weather.init();
     if (!Array.isArray(D.clocks)) D.clocks = DEFAULT_D.clocks;
-    initGlobal(); initPower(); initVolumeButtons(); initLock(); initHome(); initSwitcher(); initZones(); initSheets(); initCC(); initSearch();
+    initGlobal(); initPower(); initVolumeButtons(); initLock(); initHome(); initSwitcher(); initZones(); initSheets(); initCC(); initSearch(); initRipples();
     renderHome(); applySettings(); renderLockBody(); initBattery();
     Sys.on = true; Sys.screen = true; lockNow(true);
     seedNotifs(); tick(); setInterval(tick, 1000);
