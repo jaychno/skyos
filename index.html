@@ -741,4 +741,232 @@ function rWeather(body,doFetch=true){
   if(doFetch)fetchLiveWeather(city,true);updateWeatherWidget();
   const c=CITIES[city],gi=(k,s)=>k==='s'?SVG.wSun(s):(k==='c'?SVG.wCloud(s):SVG.wPartly(s));
   EL.appRightSlot.innerHTML=`<button class="glass-circle lg" onclick="fetchLiveWeather(city,false)">${SVG.refresh}</button>`;
-  body.innerHTML=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;">${Object.keys
+  body.innerHTML=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;">${Object.keys(CITIES).map(n=>`<button class="btn ${city===n?'btn-acc':'btn-soft'}" style="padding:6px 13px;font-size:12px;" onclick="city='${n}';rWeather(EL.appBody)">${n}</button>`).join('')}</div><div style="text-align:center;padding:12px 0 24px;"><div style="font-size:15px;font-weight:500;color:var(--muted);">${city}</div><div style="font-family:var(--font-display);font-size:74px;font-weight:220;letter-spacing:-3px;line-height:1.05;">${c.t}°</div><div style="display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--muted);">${gi(c.i,18)}<span>${c.c}</span></div></div><div class="lg lg-dark" style="border-radius:24px;padding:14px;display:grid;grid-template-columns:repeat(4,1fr);text-align:center;margin-bottom:14px;">${['Now','+1h','+2h','+3h'].map((l,i)=>`<div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;"><span style="color:var(--muted);">${l}</span>${gi(c.i,22)}<strong>${c.hrs[i]}°</strong></div>`).join('')}</div><div class="list-group"><div class="list-row"><span style="color:var(--muted);font-size:13px;">High / Low</span><strong>${c.hi}° / ${c.lo}°</strong></div><div class="list-row"><span style="color:var(--muted);font-size:13px;">Humidity</span><strong>${c.h}</strong></div><div class="list-row"><span style="color:var(--muted);font-size:13px;">Wind</span><strong>${c.w}</strong></div></div>`;
+}
+
+let brT=null,brOn=false;
+function rFocus(body){body.innerHTML=`<div style="height:290px;display:grid;place-items:center;"><div class="breath-orb lg" id="brOrb">Ready</div></div>`;EL.appBottomSlot.innerHTML=`<div class="floating-bar lg lg-dark" style="justify-content:center;"><button class="btn btn-acc" style="width:100%;" onclick="toggleBreath()">${brOn?'Stop':'Start'}</button></div>`;}
+function toggleBreath(){if(brOn){stopBreath();rFocus(EL.appBody);return;}brOn=true;rFocus(EL.appBody);const cyc=()=>{const o=document.getElementById('brOrb');if(!o||!brOn)return;o.textContent='Inhale';o.className='breath-orb lg inhale';brT=setTimeout(()=>{if(!brOn)return;o.textContent='Hold';o.className='breath-orb lg hold';brT=setTimeout(()=>{if(!brOn)return;o.textContent='Exhale';o.className='breath-orb lg exhale';brT=setTimeout(cyc,4000);},2000);},4000);};setTimeout(cyc,50);}
+function stopBreath(){brOn=false;clearTimeout(brT);}
+
+let skCol='#f8fafc';
+function rSketch(body){
+  const cols=['#f8fafc','#7dd3fc','#b7f36b','#fb7185'];
+  body.innerHTML='<canvas id="skC" style="width:100%;height:390px;background:#070a10;border-radius:24px;border:1px solid rgba(255,255,255,0.1);touch-action:none;display:block;cursor:crosshair;"></canvas>';
+  EL.appBottomSlot.innerHTML=`<div class="floating-bar lg lg-dark" style="justify-content:space-between;padding:8px 12px;"><div style="display:flex;gap:8px;">${cols.map(c=>`<button class="swatch" style="width:26px;height:26px;background:${c}" onclick="skCol='${c}'"></button>`).join('')}</div><div style="display:flex;gap:6px;"><button class="btn btn-soft" style="padding:7px 12px;font-size:12px;" onclick="clrSk()">Clear</button><button class="btn btn-acc" style="padding:7px 12px;font-size:12px;" onclick="savSk()">Save</button></div></div>`;
+  const c=document.getElementById('skC'),w=Math.max(300,EL.appBody.clientWidth-36),dpr=window.devicePixelRatio||1;
+  c.width=w*dpr;c.height=390*dpr;const ctx=c.getContext('2d');ctx.scale(dpr,dpr);ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=3.2;
+  let dr=false;const p=e=>{const b=c.getBoundingClientRect();return{x:(e.clientX-b.left)*(w/b.width),y:(e.clientY-b.top)*(390/b.height)};};
+  c.onpointerdown=e=>{dr=true;c.setPointerCapture(e.pointerId);const pt=p(e);ctx.strokeStyle=skCol;ctx.beginPath();ctx.moveTo(pt.x,pt.y);};
+  c.onpointermove=e=>{if(!dr)return;const pt=p(e);ctx.lineTo(pt.x,pt.y);ctx.stroke();};
+  c.onpointerup=()=>{dr=false;};
+}
+function clrSk(){const c=document.getElementById('skC');if(c)c.getContext('2d').clearRect(0,0,c.width,c.height);}
+function savSk(){const c=document.getElementById('skC');if(!c)return;const l=JSON.parse(LS.get('sky26-sk','[]'));l.unshift({id:Date.now(),img:c.toDataURL('image/png')});LS.set('sky26-sk',JSON.stringify(l.slice(0,8)));showToast('Saved to Gallery');}
+
+function rGallery(body){
+  const sk=JSON.parse(LS.get('sky26-sk','[]'));
+  body.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">${WALLS.map((w,i)=>`<div onclick="setWallpaper(${i});rGallery(EL.appBody)" style="height:136px;border-radius:20px;position:relative;overflow:hidden;cursor:pointer;background:${w.thumb};border:1px solid rgba(255,255,255,0.16);"><div style="position:absolute;inset:auto 10px 10px 10px;display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600;"><span>${w.name}</span>${wallIdx===i?SVG.check:''}</div></div>`).join('')}${sk.map(s=>`<div style="height:136px;border-radius:20px;background:#070a10 url(${s.img}) center/cover no-repeat;position:relative;border:1px solid rgba(255,255,255,0.14);"><button class="glass-circle lg" style="position:absolute;top:8px;right:8px;width:28px;height:28px;" onclick="delSk(${s.id})">${SVG.trash}</button></div>`).join('')}</div>`;
+}
+function delSk(id){LS.set('sky26-sk',JSON.stringify(JSON.parse(LS.get('sky26-sk','[]')).filter(x=>x.id!==id)));rGallery(EL.appBody);}
+
+let camFilter='none';
+function rCamera(body){
+  const F=[['none','Normal'],['grayscale(1)','Mono'],['sepia(0.55) saturate(1.3)','Warm'],['hue-rotate(150deg) saturate(1.4)','Cyber']];
+  body.innerHTML=`<div style="position:relative;height:390px;border-radius:26px;overflow:hidden;background:#06090f;border:1px solid rgba(255,255,255,0.12);display:grid;place-items:center;"><video id="camVid" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover;filter:${camFilter};display:none;"></video><div id="camFallback" style="width:100%;height:100%;filter:${camFilter};background:radial-gradient(circle at 30% 30%,rgba(125,211,252,0.45),transparent 60%),radial-gradient(circle at 75% 70%,rgba(244,114,182,0.4),transparent 60%),#0d131f;display:grid;place-items:center;font-size:12px;color:var(--muted);">Viewfinder</div></div><div style="display:flex;justify-content:center;gap:6px;margin-top:14px;">${F.map(([f,l])=>`<button class="btn ${camFilter===f?'btn-acc':'btn-soft'}" style="padding:6px 12px;font-size:11.5px;" onclick="camFilter='${f}';rCamera(EL.appBody)">${l}</button>`).join('')}</div>`;
+  EL.appBottomSlot.innerHTML=`<div style="position:absolute;left:0;right:0;bottom:28px;display:flex;justify-content:center;z-index:5;"><button class="glass-circle lg" style="width:62px;height:62px;border:3px solid #fff;background:rgba(255,255,255,0.22);" onclick="capturePhoto()"></button></div>`;
+  if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){
+    navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}}).then(st=>{
+      if(activeApp!=='camera'){st.getTracks().forEach(t=>t.stop());return;}
+      camStream=st;const v=document.getElementById('camVid'),fb=document.getElementById('camFallback');if(v){v.srcObject=st;v.style.display='block';if(fb)fb.style.display='none';}
+    }).catch(()=>{});
+  }
+}
+function capturePhoto(){
+  tone(900,0.05);const c=document.createElement('canvas');c.width=360;c.height=420;const ctx=c.getContext('2d');ctx.filter=camFilter;const v=document.getElementById('camVid');
+  if(v&&v.style.display==='block'&&v.videoWidth)ctx.drawImage(v,0,0,360,420);else{const g=ctx.createLinearGradient(0,0,360,420);g.addColorStop(0,'#0ea5e9');g.addColorStop(0.5,'#6366f1');g.addColorStop(1,'#ec4899');ctx.fillStyle=g;ctx.fillRect(0,0,360,420);}
+  const l=JSON.parse(LS.get('sky26-sk','[]'));l.unshift({id:Date.now(),img:c.toDataURL('image/png')});LS.set('sky26-sk',JSON.stringify(l.slice(0,8)));showToast('Saved to Gallery');
+}
+
+let voiceMemos=[],voiceRecOn=false,voiceSec=0,voiceTimer=null;
+function rVoice(body){
+  body.innerHTML=`<div style="text-align:center;padding:26px 0 22px;"><div style="font-family:var(--font-display);font-size:46px;font-weight:280;font-variant-numeric:tabular-nums;" id="vTime">${fmtSec(voiceSec)}</div><button class="glass-circle ${voiceRecOn?'btn-red':'btn-acc'}" style="width:66px;height:66px;margin:16px auto 0;" onclick="toggleVoiceRec()">${SVG.mic}</button></div><div class="list-group" style="${voiceMemos.length?'':'display:none'}">${voiceMemos.map((m,i)=>`<div class="list-row"><div><div style="font-size:13.5px;font-weight:600;">Memo ${voiceMemos.length-i}</div><div style="font-size:11px;color:var(--muted);">${m.dur}</div></div><div style="display:flex;gap:8px;"><button class="glass-circle lg" style="width:32px;height:32px;" onclick="new Audio('${m.url}').play()">${SVG.play}</button><button class="glass-circle" style="width:32px;height:32px;background:rgba(255,255,255,0.08);" onclick="voiceMemos.splice(${i},1);rVoice(EL.appBody)">${SVG.trash}</button></div></div>`).join('')}</div>`;
+}
+function toggleVoiceRec(){
+  if(voiceRecOn){voiceRecOn=false;clearInterval(voiceTimer);if(voiceRec&&voiceRec.state!=='inactive')voiceRec.stop();if(voiceStream){voiceStream.getTracks().forEach(t=>t.stop());voiceStream=null;}rVoice(EL.appBody);return;}
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return showToast('Mic unsupported');
+  navigator.mediaDevices.getUserMedia({audio:true}).then(st=>{
+    voiceStream=st;const ch=[];voiceRec=new MediaRecorder(st);voiceRec.ondataavailable=e=>ch.push(e.data);
+    voiceRec.onstop=()=>{voiceMemos.unshift({url:URL.createObjectURL(new Blob(ch,{type:'audio/webm'})),dur:fmtSec(voiceSec)});voiceSec=0;if(activeApp==='voice')rVoice(EL.appBody);};
+    voiceRec.start();voiceRecOn=true;voiceSec=0;voiceTimer=setInterval(()=>{voiceSec++;const e=document.getElementById('vTime');if(e)e.textContent=fmtSec(voiceSec);},1000);rVoice(EL.appBody);
+  }).catch(()=>showToast('Mic permission denied'));
+}
+
+let cmpH=0,cmpX=0,cmpY=0;
+function rCompass(body){
+  body.innerHTML=`<div style="text-align:center;padding-top:10px;"><div class="compass-dial lg lg-dark" id="cmpBox"><div class="compass-rose" id="cmpRose" style="transform:rotate(${-cmpH}deg);"><span style="position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:700;color:#ef4444;">N</span><span style="position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--muted);">S</span><span style="position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--muted);">E</span><span style="position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--muted);">W</span></div><div class="level-bubble" id="lvlBubble" style="transform:translate(${cmpX}px,${cmpY}px);"></div></div><div id="cmpDeg" style="font-family:var(--font-display);font-size:48px;font-weight:260;font-variant-numeric:tabular-nums;">${Math.round(cmpH)}°</div><div id="cmpLvl" style="font-size:12.5px;color:var(--muted);margin-top:4px;">Tilt: ${Math.round(cmpX)}° / ${Math.round(cmpY)}°</div></div>`;
+  const box=document.getElementById('cmpBox');
+  box.onpointermove=e=>{const r=box.getBoundingClientRect();cmpX=Math.max(-45,Math.min(45,((e.clientX-r.left)/r.width-0.5)*90));cmpY=Math.max(-45,Math.min(45,((e.clientY-r.top)/r.height-0.5)*90));cmpH=(Math.atan2(cmpX,-cmpY)*180/Math.PI+360)%360;updCmp();};
+  compassFn=e=>{if(e.alpha!==null)cmpH=(360-e.alpha)%360;if(e.gamma!==null)cmpX=Math.max(-45,Math.min(45,e.gamma));if(e.beta!==null)cmpY=Math.max(-45,Math.min(45,e.beta-45));updCmp();};
+  window.addEventListener('deviceorientation',compassFn);
+}
+function updCmp(){const r=document.getElementById('cmpRose'),b=document.getElementById('lvlBubble'),d=document.getElementById('cmpDeg'),l=document.getElementById('cmpLvl');if(r)r.style.transform=`rotate(${-cmpH}deg)`;if(b)b.style.transform=`translate(${cmpX}px,${cmpY}px)`;if(d)d.textContent=Math.round(cmpH)+'°';if(l)l.textContent=`Tilt: ${Math.round(cmpX)}° / ${Math.round(cmpY)}°`;}
+
+let gBoard=[],gScore=0,gBest=Number(LS.get('sky26-2048',0));
+function init2048(){gBoard=Array(16).fill(0);gScore=0;spawn2048();spawn2048();}
+function spawn2048(){const e=gBoard.map((v,i)=>v===0?i:-1).filter(i=>i>=0);if(e.length)gBoard[e[Math.floor(Math.random()*e.length)]]=Math.random()<0.9?2:4;}
+function slide2048(dir){
+  const prev=gBoard.join(','),get=(r,c)=>gBoard[r*4+c],set=(r,c,v)=>{gBoard[r*4+c]=v;};
+  for(let i=0;i<4;i++){
+    let ln=[];for(let j=0;j<4;j++)ln.push(dir==='L'?get(i,j):dir==='R'?get(i,3-j):dir==='U'?get(j,i):get(3-j,i));ln=ln.filter(Boolean);
+    for(let k=0;k<ln.length-1;k++)if(ln[k]===ln[k+1]){ln[k]*=2;gScore+=ln[k];ln.splice(k+1,1);}
+    while(ln.length<4)ln.push(0);
+    for(let j=0;j<4;j++){if(dir==='L')set(i,j,ln[j]);else if(dir==='R')set(i,3-j,ln[j]);else if(dir==='U')set(j,i,ln[j]);else set(3-j,i,ln[j]);}
+  }
+  if(gBoard.join(',')!==prev){if(gScore>gBest){gBest=gScore;LS.set('sky26-2048',gBest);}spawn2048();if(activeApp==='g2048')r2048(EL.appBody);}
+}
+function r2048(body){
+  if(!gBoard.length)init2048();
+  const C={0:'rgba(255,255,255,0.05)',2:'rgba(255,255,255,0.14)',4:'rgba(125,211,252,0.22)',8:'rgba(56,189,248,0.34)',16:'rgba(99,102,241,0.4)',32:'rgba(168,85,247,0.45)',64:'rgba(236,72,153,0.48)',128:'rgba(251,146,60,0.52)',256:'rgba(250,204,21,0.55)'};
+  EL.appRightSlot.innerHTML=`<button class="glass-circle lg" onclick="init2048();r2048(EL.appBody)">${SVG.refresh}</button>`;
+  body.innerHTML=`<div style="display:flex;justify-content:space-between;margin-bottom:14px;font-size:13px;"><div class="glass-pill lg lg-dark">Score: ${gScore}</div><div class="glass-pill lg lg-dark">Best: ${gBest}</div></div><div class="g2048-board" id="b2048">${gBoard.map(v=>`<div class="g2048-cell" style="background:${C[v]||'rgba(244,63,94,0.6)'};font-size:${v>99?18:22}px;">${v||''}</div>`).join('')}</div>`;
+  const bd=document.getElementById('b2048');let sx=0,sy=0;
+  bd.onpointerdown=e=>{sx=e.clientX;sy=e.clientY;};
+  bd.onpointerup=e=>{const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.max(Math.abs(dx),Math.abs(dy))<18)return;slide2048(Math.abs(dx)>Math.abs(dy)?(dx>0?'R':'L'):(dy>0?'D':'U'));};
+}
+
+const S_NOTES=[['C4',261.63],['D4',293.66],['E4',329.63],['G4',392],['A4',440],['C5',523.25],['D5',587.33],['E5',659.25],['G5',783.99]];
+let synthWave='sine';
+function rSynth(body){body.innerHTML=`<div style="display:flex;gap:6px;justify-content:center;margin-bottom:18px;">${['sine','triangle','sawtooth'].map(w=>`<button class="btn ${synthWave===w?'btn-acc':'btn-soft'}" style="padding:6px 13px;font-size:12px;text-transform:capitalize;" onclick="synthWave='${w}';rSynth(EL.appBody)">${w}</button>`).join('')}</div><div class="synth-grid">${S_NOTES.map(([n,f])=>`<button class="synth-pad lg" onclick="playSynth(${f},this)"><span>${n}</span></button>`).join('')}</div>`;}
+function playSynth(f,btn){btn.classList.add('hit');setTimeout(()=>btn.classList.remove('hit'),140);try{const c=getAudio(),o=c.createOscillator(),g=c.createGain(),fl=c.createBiquadFilter();o.type=synthWave;o.frequency.value=f;fl.type='lowpass';fl.frequency.value=1400;g.gain.setValueAtTime(0.001,c.currentTime);g.gain.linearRampToValueAtTime(0.14*(prefs.volume/100),c.currentTime+0.02);g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+0.55);o.connect(fl);fl.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+0.58);}catch{}}
+
+let palBase='#7dd3fc';
+function rPalette(body){
+  const hsl=hexToHsl(palBase),pals=[0,35,140,180,220].map(o=>hslToHex((hsl[0]+o)%360,hsl[1],hsl[2]));
+  body.innerHTML=`<div class="list-group" style="padding:16px;"><div style="height:110px;border-radius:18px;background:linear-gradient(135deg,${pals[0]},${pals[1]},${pals[2]});margin-bottom:14px;"></div><div style="display:flex;justify-content:space-between;align-items:center;"><input type="color" value="${palBase}" onchange="palBase=this.value;rPalette(EL.appBody)" style="width:42px;height:36px;border:0;background:none;cursor:pointer;"><button class="btn btn-acc" onclick="setAccent('${palBase}')">Apply as Tint</button></div></div><div class="list-group">${pals.map(h=>`<div class="list-row" style="cursor:pointer;" onclick="setAccent('${h}')"><div style="display:flex;align-items:center;gap:12px;"><span class="swatch" style="width:24px;height:24px;background:${h}"></span><strong style="font-family:monospace;">${h}</strong></div><span style="font-size:11.5px;color:var(--muted);">Use</span></div>`).join('')}</div>`;
+}
+function hexToHsl(hex){let r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b);let h=0,s=0,l=(mx+mn)/2;if(mx!==mn){const d=mx-mn;s=l>0.5?d/(2-mx-mn):d/(mx+mn);h=mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4;h/=6;}return[Math.round(h*360),Math.round(s*100),Math.round(l*100)];}
+function hslToHex(h,s,l){s/=100;l/=100;const a=s*Math.min(l,1-l),f=n=>{const k=(n+h/30)%12,c=l-a*Math.max(Math.min(k-3,9-k,1),-1);return Math.round(255*c).toString(16).padStart(2,'0');};return`#${f(0)}${f(8)}${f(4)}`;}
+
+function rMonitor(body){
+  body.innerHTML=`<div class="list-group"><div class="list-row"><span style="color:var(--muted);font-size:13px;">Frame Rate</span><strong id="monFps">60 FPS</strong></div><div class="list-row"><span style="color:var(--muted);font-size:13px;">Viewport</span><strong>${window.innerWidth} × ${window.innerHeight}</strong></div><div class="list-row"><span style="color:var(--muted);font-size:13px;">Audio</span><strong>${music.playing?'Playing':'Idle'}</strong></div><div class="list-row"><span style="color:var(--muted);font-size:13px;">Storage</span><strong>${LS.sizeKB()} KB</strong></div></div><div class="list-group" style="padding:14px;"><div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Pulse</div><div id="monBars" style="display:flex;align-items:flex-end;gap:5px;height:90px;">${Array(16).fill('<div style="flex:1;height:12px;border-radius:4px;background:var(--accent);opacity:0.8;transition:height 0.12s;"></div>').join('')}</div></div>`;
+  let f=0,last=performance.now();
+  const loop=now=>{if(activeApp!=='monitor')return;f++;if(now-last>=500){const el=document.getElementById('monFps');if(el)el.textContent=Math.round(f*1000/(now-last))+' FPS';f=0;last=now;}const b=document.getElementById('monBars');if(b)Array.from(b.children).forEach((x,i)=>{x.style.height=(music.playing?18+Math.abs(Math.sin(now/180+i*0.6))*68:10+Math.abs(Math.sin(now/500+i*0.4))*20)+'px';});monitorRaf=requestAnimationFrame(loop);};
+  monitorRaf=requestAnimationFrame(loop);
+}
+
+let mapCoord={lat:52.52,lon:13.405,label:'Berlin'};
+function rMaps(body){body.innerHTML=`<div style="height:310px;border-radius:24px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.12);background:radial-gradient(circle at 50% 50%,rgba(56,189,248,0.22),transparent 65%),linear-gradient(180deg,#0b1322,#070a12);display:grid;place-items:center;margin-bottom:14px;"><svg width="240" height="240" viewBox="0 0 240 240" style="opacity:0.35;"><circle cx="120" cy="120" r="40" stroke="#7dd3fc" fill="none"/><circle cx="120" cy="120" r="80" stroke="#7dd3fc" fill="none"/><circle cx="120" cy="120" r="115" stroke="#7dd3fc" fill="none"/><line x1="0" y1="120" x2="240" y2="120" stroke="#7dd3fc"/><line x1="120" y1="0" x2="120" y2="240" stroke="#7dd3fc"/></svg><div style="position:absolute;width:16px;height:16px;border-radius:50%;background:var(--accent);box-shadow:0 0 20px var(--accent);border:2.5px solid #fff;"></div></div><div class="list-group"><div class="list-row"><span style="color:var(--muted);font-size:13px;">Location</span><strong>${mapCoord.label}</strong></div><div class="list-row"><span style="color:var(--muted);font-size:13px;">Coordinates</span><strong style="font-variant-numeric:tabular-nums;">${mapCoord.lat.toFixed(4)}, ${mapCoord.lon.toFixed(4)}</strong></div></div><button class="btn btn-acc" style="width:100%;" onclick="locateGPS()">Locate GPS</button>`;}
+function locateGPS(){if(!navigator.geolocation)return showToast('GPS unsupported');showToast('Locating...');navigator.geolocation.getCurrentPosition(p=>{mapCoord={lat:p.coords.latitude,lon:p.coords.longitude,label:'Current GPS'};if(activeApp==='maps')rMaps(EL.appBody);showToast('Located');},()=>showToast('Location denied'));}
+
+let calDate=new Date(),calSelKey=new Date().toISOString().slice(0,10);
+const getCalEv=()=>{try{return JSON.parse(LS.get('sky26-cal','{}'));}catch{return{};}};
+function rCalendar(body){
+  const y=calDate.getFullYear(),m=calDate.getMonth(),mn=calDate.toLocaleDateString([],{month:'long',year:'numeric'}),fd=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate(),tk=new Date().toISOString().slice(0,10),ev=getCalEv(),cells=[];
+  for(let i=0;i<fd;i++)cells.push('<div></div>');
+  for(let d=1;d<=dim;d++){const k=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;cells.push(`<button class="cal-day ${k===tk?'today':''} ${k===calSelKey?'sel':''}" onclick="calSelKey='${k}';rCalendar(EL.appBody)">${d}${ev[k]?'<span class="cal-dot"></span>':''}</button>`);}
+  body.innerHTML=`<div class="list-group" style="padding:14px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><button class="glass-circle lg" style="width:30px;height:30px;" onclick="calDate.setMonth(calDate.getMonth()-1);rCalendar(EL.appBody)">${SVG.back}</button><strong style="font-size:15px;">${mn}</strong><button class="glass-circle lg" style="width:30px;height:30px;transform:rotate(180deg);" onclick="calDate.setMonth(calDate.getMonth()+1);rCalendar(EL.appBody)">${SVG.back}</button></div><div class="cal-grid" style="font-size:11px;color:var(--muted);margin-bottom:6px;"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div><div class="cal-grid">${cells.join('')}</div></div><div class="list-group" style="padding:14px;"><div style="font-size:12px;color:var(--muted);margin-bottom:8px;">${calSelKey}</div><div style="display:flex;gap:8px;"><input class="field" id="calEvIn" value="${(ev[calSelKey]||'').replace(/"/g,'&quot;')}" placeholder="Add event..." onkeydown="if(event.key==='Enter')saveCalEv()"><button class="btn btn-acc" onclick="saveCalEv()">Save</button></div></div>`;
+}
+function saveCalEv(){const v=document.getElementById('calEvIn').value.trim(),ev=getCalEv();if(v)ev[calSelKey]=v;else delete ev[calSelKey];LS.set('sky26-cal',JSON.stringify(ev));rCalendar(EL.appBody);showToast(v?'Saved':'Cleared');}
+
+function rFiles(body){
+  const sk=JSON.parse(LS.get('sky26-sk','[]')),notes=getNotes();
+  EL.appRightSlot.innerHTML=`<button class="glass-circle lg" onclick="syncMusicLibrary(false)">${SVG.refresh}</button>`;
+  body.innerHTML=`<div class="sec-lbl">music/ (${LIBRARY.length})</div><div class="list-group">${LIBRARY.map((t,i)=>`<div class="list-row" style="cursor:pointer;" onclick="musicTab='library';openApp('music');loadTrack(${i},true)"><div style="min-width:0;flex:1;"><div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${t.file}</div><div style="font-size:11px;color:var(--muted);">${t.artist}</div></div><span style="color:var(--accent);">${SVG.play}</span></div>`).join('')}<div class="list-row" style="cursor:pointer;" onclick="document.getElementById('audioPicker').click()"><span style="font-size:13px;color:var(--accent);font-weight:600;">+ Import local audio</span></div></div><div class="sec-lbl">Storage</div><div class="list-group"><div class="list-row" style="cursor:pointer;" onclick="openApp('gallery')"><span style="font-size:13.5px;">Gallery</span><strong>${sk.length}</strong></div><div class="list-row" style="cursor:pointer;" onclick="openApp('notes')"><span style="font-size:13.5px;">Notes</span><strong>${notes.length}</strong></div></div>`;
+}
+
+let cvCat='temp',cvVal='20',cvSwap=false;
+const CONV={temp:{l:'Temp',u:['°C','°F'],fn:(v,r)=>r?(v-32)*5/9:v*9/5+32},length:{l:'Length',u:['km','mi'],fn:(v,r)=>r?v/0.621371:v*0.621371},weight:{l:'Weight',u:['kg','lb'],fn:(v,r)=>r?v/2.20462:v*2.20462},data:{l:'Data',u:['GB','MB'],fn:(v,r)=>r?v/1024:v*1024}};
+function rConvert(body){
+  const c=CONV[cvCat],fu=cvSwap?c.u[1]:c.u[0],tu=cvSwap?c.u[0]:c.u[1],num=parseFloat(cvVal);
+  body.innerHTML=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">${Object.keys(CONV).map(k=>`<button class="btn ${cvCat===k?'btn-acc':'btn-soft'}" style="padding:6px 12px;font-size:12px;" onclick="cvCat='${k}';cvSwap=false;rConvert(EL.appBody)">${CONV[k].l}</button>`).join('')}</div><div class="list-group" style="padding:16px;"><div style="font-size:12px;color:var(--muted);">${fu}</div><input class="field" type="number" value="${cvVal}" style="margin-top:6px;font-size:24px;font-weight:300;" oninput="cvVal=this.value;updConv()"><div style="display:flex;justify-content:center;margin:12px 0;"><button class="glass-circle lg" onclick="cvSwap=!cvSwap;rConvert(EL.appBody)">${SVG.swap}</button></div><div style="font-size:12px;color:var(--muted);">${tu}</div><div id="convOut" style="font-family:var(--font-display);font-size:38px;font-weight:300;margin-top:4px;color:var(--accent);font-variant-numeric:tabular-nums;">${Number.isFinite(num)?Number(c.fn(num,cvSwap).toFixed(2)):'—'}</div></div>`;
+}
+function updConv(){const c=CONV[cvCat],n=parseFloat(cvVal),e=document.getElementById('convOut');if(e)e.textContent=Number.isFinite(n)?Number(c.fn(n,cvSwap).toFixed(2)):'—';}
+
+let termLogs=['SkySH 26 — type "help"'];
+function rTerminal(body){body.innerHTML='<div class="term-box" id="termOut"></div>';document.getElementById('termOut').textContent=termLogs.join('\n');EL.appBottomSlot.innerHTML=`<div class="floating-bar lg lg-dark"><input id="termIn" placeholder="command..." style="flex:1;background:transparent;border:0;color:#fff;padding:8px 14px;font-family:monospace;font-size:13px;outline:none;" onkeydown="if(event.key==='Enter')runTerm()"><button class="glass-circle btn-acc" onclick="runTerm()">${SVG.send}</button></div>`;}
+function runTerm(){const i=document.getElementById('termIn'),raw=i.value.trim();if(!raw)return;termLogs.push('$ '+raw);const[cmd,...rest]=raw.split(/\s+/),arg=rest.join(' '),c=cmd.toLowerCase();if(c==='help')termLogs.push('cmds: help, ls, play <q>, open <app>, sync, time, theme <hex>, clear');else if(c==='clear')termLogs=[];else if(c==='time')termLogs.push(new Date().toLocaleString());else if(c==='ls')termLogs.push(LIBRARY.map((t,idx)=>`[${idx}] ${t.file}`).join('\n'));else if(c==='sync'){syncMusicLibrary(false);termLogs.push('syncing...');}else if(c==='theme'&&arg){setAccent(arg);termLogs.push('accent -> '+arg);}else if(c==='open'&&arg){openApp(arg.toLowerCase());return;}else if(c==='play'){const idx=LIBRARY.findIndex(t=>t.title.toLowerCase().includes(arg.toLowerCase()));if(idx>=0){loadTrack(idx,true);termLogs.push('playing: '+LIBRARY[idx].title);}else termLogs.push('not found');}else termLogs.push('unknown: '+cmd);rTerminal(EL.appBody);const b=document.getElementById('termOut');if(b)b.scrollTop=b.scrollHeight;}
+
+function rBrowser(body){body.innerHTML='<div style="border-radius:22px;overflow:hidden;height:100%;min-height:460px;border:1px solid rgba(255,255,255,0.1);"><iframe id="wFrm" title="Browser" src="https://example.com" style="border:0;width:100%;height:100%;min-height:460px;background:#fff;"></iframe></div>';EL.appBottomSlot.innerHTML=`<div class="floating-bar lg lg-dark"><input id="wUrl" placeholder="example.com" style="flex:1;background:transparent;border:0;color:#fff;padding:8px 12px;font-family:inherit;font-size:13.5px;outline:none;" onkeydown="if(event.key==='Enter')goUrl(true)"><button class="btn btn-soft" style="padding:7px 11px;font-size:12px;" onclick="goUrl(false)">${SVG.ext}</button><button class="btn btn-acc" style="padding:7px 13px;font-size:12px;" onclick="goUrl(true)">Go</button></div>`;}
+function goUrl(inF){let u=document.getElementById('wUrl').value.trim();if(!u)return;if(!u.startsWith('http'))u='https://'+u;if(inF)document.getElementById('wFrm').src=u;else window.open(u,'_blank','noopener');}
+
+let dial='',callMuted=false,callSec=0,callTimer=null;
+const DTMF={'1':697,'2':730,'3':770,'4':800,'5':852,'6':890,'7':941,'8':980,'9':1020,'*':580,'0':640,'#':710};
+function rPhone(body){endCall();const P=[['1',''],['2','ABC'],['3','DEF'],['4','GHI'],['5','JKL'],['6','MNO'],['7','PQRS'],['8','TUV'],['9','WXYZ'],['*',''],['0','+'],['#','']];body.innerHTML=`<div style="padding-top:16px;"><div id="dTxt" style="font-family:var(--font-display);font-size:32px;font-weight:300;text-align:center;min-height:44px;margin-bottom:22px;font-variant-numeric:tabular-nums;">${dial||' '}</div><div class="dial-grid">${P.map(k=>`<button class="dial-btn" onclick="dPress('${k[0]}')"><b>${k[0]}</b><span>${k[1]}</span></button>`).join('')}</div><div style="display:flex;justify-content:center;align-items:center;gap:22px;margin-top:20px;"><div style="width:44px;"></div><button class="glass-circle" style="width:66px;height:66px;background:#22c55e;color:#fff;" onclick="doCall()">${SVG.call}</button><button class="glass-circle" style="width:44px;height:44px;background:transparent;" onclick="dBack()">${SVG.backsp}</button></div></div>`;}
+function dPress(k){tone(DTMF[k]||600,0.06);if(dial.length<14)dial+=k;document.getElementById('dTxt').textContent=dial;}
+function dBack(){dial=dial.slice(0,-1);document.getElementById('dTxt').textContent=dial||' ';}
+function doCall(){if(!dial)return;inCall=true;callMuted=false;callSec=0;EL.island.classList.add('calling','expanded');clearInterval(callTimer);callTimer=setInterval(()=>{callSec++;const ct=document.getElementById('callTimer');if(ct)ct.textContent=`${String(Math.floor(callSec/60)).padStart(2,'0')}:${String(callSec%60).padStart(2,'0')}`;},1000);rCallScreen();}
+function rCallScreen(){EL.appBody.innerHTML=`<div style="text-align:center;padding:54px 0;"><div id="callDialTxt" style="font-size:28px;font-weight:500;"></div><div id="callTimer" style="font-size:13px;color:var(--accent);margin-top:6px;font-variant-numeric:tabular-nums;">00:00</div><div style="display:flex;justify-content:center;gap:22px;margin-top:140px;"><button class="glass-circle lg" style="width:60px;height:60px;${callMuted?'background:#fff;color:#000;':''}" onclick="callMuted=!callMuted;rCallScreen()">${SVG.volOff}</button><button class="glass-circle btn-red" style="width:60px;height:60px;" onclick="rPhone(EL.appBody)">${SVG.close}</button></div></div>`;document.getElementById('callDialTxt').textContent=dial;}
+function endCall(){inCall=false;clearInterval(callTimer);EL.island.classList.remove('calling');EL.island.classList.toggle('expanded',music.playing||Boolean(tmInt));}
+
+const getMsgs=()=>{try{const r=LS.get('sky26-msgs');return r?JSON.parse(r):[{f:'them',t:'Liquid Glass ready.'}];}catch{return[];}};
+function rMsg(body){
+  const ms=getMsgs();body.innerHTML='<div id="mBox" style="padding-top:8px;"></div>';const b=document.getElementById('mBox');
+  ms.forEach(m=>{const d=document.createElement('div');d.className=`bubble ${m.f==='me'?'me':'them'}`;d.textContent=m.t;b.appendChild(d);});
+  EL.appBottomSlot.innerHTML=`<div class="floating-bar lg lg-dark"><input id="mIn" placeholder="iMessage" style="flex:1;background:transparent;border:0;color:#fff;padding:8px 14px;font-family:inherit;font-size:13.5px;outline:none;" onkeydown="if(event.key==='Enter')sendM()"><button class="glass-circle btn-acc" onclick="sendM()">${SVG.send}</button></div>`;
+}
+function sendM(){const v=document.getElementById('mIn').value.trim();if(!v)return;const ms=getMsgs();ms.push({f:'me',t:v});ms.push({f:'them',t:['Noted.','Looks clean.','Done.','Copy that.'][ms.length%4]});LS.set('sky26-msgs',JSON.stringify(ms));rMsg(EL.appBody);}
+
+function downloadSkyOS(){
+  const doc=document.documentElement.cloneNode(true),sc=doc.querySelector('#screen');
+  if(sc){sc.classList.remove('unlocked','app-open','recents-open','reduce-motion','low-power');sc.removeAttribute('style');}
+  const ls=doc.querySelector('#lockscreen');if(ls)ls.classList.remove('unlocked');
+  const pn=doc.querySelector('#panel');if(pn)pn.classList.remove('show');
+  ['gridP1','gridP2','dockGrid','appBody','appBottomSlot','appRightSlot','wallLayer','spotifyMount','recentsDeck'].forEach(id=>{const e=doc.querySelector('#'+id);if(e)e.innerHTML='';});
+  const blob=new Blob(['<!DOCTYPE html>\n'+doc.outerHTML],{type:'text/html'}),a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download='index.html';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500);showToast('Downloaded index.html');
+}
+
+function rSettings(body){
+  const cols=['#7dd3fc','#b7f36b','#f472b6','#fb923c','#a78bfa','#f8fafc'],cur=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+  body.innerHTML=`
+    <div class="sec-lbl">Appearance</div>
+    <div class="list-group">
+      <div class="list-row"><span style="font-size:13.5px;font-weight:500;">Icons</span><div style="display:flex;gap:5px;">${['clear','tinted','color'].map(m=>`<button class="btn ${iconMode===m?'btn-acc':'btn-soft'}" style="padding:6px 10px;font-size:11.5px;text-transform:capitalize;" onclick="setIconMode('${m}');rSettings(EL.appBody)">${m}</button>`).join('')}</div></div>
+      <div class="list-row"><span style="font-size:13.5px;font-weight:500;">Glass</span><div style="display:flex;gap:5px;">${['subtle','standard','deep'].map(g=>`<button class="btn ${prefs.glassDepth===g?'btn-acc':'btn-soft'}" style="padding:6px 10px;font-size:11.5px;text-transform:capitalize;" onclick="applyGlassDepth('${g}');rSettings(EL.appBody)">${g}</button>`).join('')}</div></div>
+      <div class="list-row"><span style="font-size:13.5px;font-weight:500;">Icon Labels</span><button class="toggle ${prefs.showLabels?'on':''}" onclick="prefs.showLabels=!prefs.showLabels;LS.set('sky26-lbl',prefs.showLabels?'1':'0');EL.screen.classList.toggle('hide-labels',!prefs.showLabels);rSettings(EL.appBody)"><span></span></button></div>
+      <div class="list-row"><span style="font-size:13.5px;font-weight:500;">Home Widgets</span><button class="toggle ${prefs.showWidgets?'on':''}" onclick="prefs.showWidgets=!prefs.showWidgets;LS.set('sky26-wid',prefs.showWidgets?'1':'0');EL.screen.classList.toggle('hide-widgets',!prefs.showWidgets);rSettings(EL.appBody)"><span></span></button></div>
+      <div class="list-row"><span style="font-size:13.5px;font-weight:500;">Tint</span><div style="display:flex;gap:6px;align-items:center;">${cols.map(c=>`<button class="swatch" style="width:23px;height:23px;background:${c}" onclick="setAccent('${c}')"></button>`).join('')}<input type="color" value="${cur.startsWith('#')?cur:'#7dd3fc'}" onchange="setAccent(this.value)" style="width:24px;height:24px;border:0;background:none;padding:0;cursor:pointer;"></div></div>
+      <div class="list-row" style="flex-direction:column;align-items:stretch;gap:10px;"><span style="font-size:13.5px;font-weight:500;">Wallpaper</span><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">${WALLS.map((w,i)=>`<div onclick="setWallpaper(${i});rSettings(EL.appBody)" style="height:50px;border-radius:12px;cursor:pointer;background:${w.thumb};border:2px solid ${wallIdx===i?'var(--accent)':'rgba(255,255,255,0.15)'}"></div>`).join('')}</div></div>
+    </div>
+    <div class="sec-lbl">Display & Audio</div>
+    <div class="list-group">
+      <div class="list-row"><span style="font-size:13.5px;font-weight:500;">24-Hour Time</span><button class="toggle ${prefs.hour24?'on':''}" onclick="prefs.hour24=!prefs.hour24;LS.set('sky26-24h',prefs.hour24?'1':'0');tickClock();rSettings(EL.appBody)"><span></span></button></div>
+      <div class="list-row"><span style="font-size:13.5px;font-weight:500;">Lock Seconds</span><button class="toggle ${prefs.seconds?'on':''}" onclick="prefs.seconds=!prefs.seconds;LS.set('sky26-sec',prefs.seconds?'1':'0');tickClock();rSettings(EL.appBody)"><span></span></button></div>
+      <div class="list-row"><span style="font-size:13.5px;font-weight:500;">Reduce Motion</span><button class="toggle ${prefs.reduceMotion?'on':''}" onclick="applyReduceMotion(!prefs.reduceMotion);rSettings(EL.appBody)"><span></span></button></div>
+      <div class="list-row"><span style="font-size:13.5px;font-weight:500;">UI Sounds</span><button class="toggle ${prefs.sound?'on':''}" onclick="toggleMute(EL.ccMute);rSettings(EL.appBody)"><span></span></button></div>
+      <div class="list-row"><span style="font-size:13.5px;font-weight:500;">Auto-Play Next</span><button class="toggle ${prefs.autoPlayNext?'on':''}" onclick="prefs.autoPlayNext=!prefs.autoPlayNext;LS.set('sky26-apn',prefs.autoPlayNext?'1':'0');rSettings(EL.appBody)"><span></span></button></div>
+    </div>
+    <div class="sec-lbl">Music Folder Sync</div>
+    <div class="list-group">
+      <div class="list-row" style="flex-direction:column;align-items:stretch;gap:8px;">
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;"><span style="color:var(--muted);">GitHub Repo</span><strong>${LIBRARY.length} tracks</strong></div>
+        <div style="display:flex;gap:8px;"><input class="field" id="repoIn" value="${prefs.repo}" placeholder="owner/repo"><button class="btn btn-acc" onclick="saveRepoSync()">Sync</button></div>
+      </div>
+    </div>
+    <div class="sec-lbl">System</div>
+    <div class="list-group">
+      <div class="list-row"><span style="font-size:13.5px;color:var(--muted);">Storage</span><strong>${LS.sizeKB()} KB</strong></div>
+      <div class="list-row"><span style="font-size:13.5px;font-weight:500;">Export HTML</span><button class="btn btn-acc" style="padding:7px 14px;font-size:12px;" onclick="downloadSkyOS()">Download</button></div>
+      <div class="list-row"><span style="font-size:13.5px;font-weight:500;">Factory Reset</span><button class="btn btn-red" style="padding:7px 14px;font-size:12px;" onclick="LS.clear();location.reload();">Reset</button></div>
+    </div>`;
+}
+function saveRepoSync(){const v=document.getElementById('repoIn').value.trim();if(v){prefs.repo=v;LS.set('sky26-repo',v);}syncMusicLibrary(false);}
+function setAccent(c){document.documentElement.style.setProperty('--accent',c);LS.set('sky26-acc',c);showToast('Tint updated');}
+
+function rAbout(body){
+  body.innerHTML=`<div style="text-align:center;padding:24px 0;"><div class="lg" style="width:72px;height:72px;border-radius:22px;margin:0 auto 14px;display:grid;place-items:center;">${SVG.appAbout}</div><div style="font-size:22px;font-weight:600;">SkyOS 26</div><div style="font-size:12.5px;color:var(--muted);">Liquid Glass Build</div></div><div class="list-group"><div class="list-row"><span style="color:var(--muted);font-size:13px;">Material</span><strong>Liquid Glass</strong></div><div class="list-row"><span style="color:var(--muted);font-size:13px;">Apps</span><strong>${ALL_APPS.length-2}</strong></div><div class="list-row"><span style="color:var(--muted);font-size:13px;">Library</span><strong>${LIBRARY.length} tracks</strong></div><div class="list-row"><span style="color:var(--muted);font-size:13px;">Display</span><strong>${window.innerWidth} × ${window.innerHeight}</strong></div></div><button class="btn btn-acc" style="width:100%;" onclick="downloadSkyOS()">Download index.html</button>`;
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){goHome();return;}
+  if(activeApp==='g2048'){const km={ArrowLeft:'L',ArrowRight:'R',ArrowUp:'U',ArrowDown:'D'};if(km[e.key]){e.preventDefault();slide2048(km[e.key]);}return;}
+  if(activeApp!=='calculator')return;
+  const m={'/':'÷','*':'×','-':'−','+':'+','Enter':'=','Backspace':'⌫','Escape':'AC'};
+  if('0123456789.()'.includes(e.key))cKey(e.key);else if(m[e.key]){e.preventDefault();cKey(m[e.key]);}
+});
+
+init();
+</script>
+</body>
+</html>
